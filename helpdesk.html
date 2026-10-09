@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Helpdesk - Mark Entry Software</title>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<style>
+  /* Basic reset */
+  * {
+    box-sizing: border-box;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+  }
+  body {
+    background: #f4f7fb;
+    margin: 0; padding: 0;
+    color: #334155;
+    line-height: 1.6;
+  }
+  header {
+    background: linear-gradient(135deg, #0b1a2d, #1a365d);
+    color: white;
+    padding: 30px 20px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 2.4em;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  header p {
+    font-size: 1.05em;
+    margin-top: 10px;
+    color: #93c5fd;
+    font-weight: 500;
+  }
+  .container {
+    max-width: 900px;
+    margin: 40px auto 60px;
+    padding: 0 20px;
+  }
+  h2 {
+    color: #1e293b;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: 700;
+  }
+  p.intro {
+    text-align: center;
+    font-size: 1.15em;
+    margin-bottom: 40px;
+    color: #475569;
+  }
+
+  /* FAQ Section */
+  .faq {
+    margin-bottom: 50px;
+  }
+  .faq-item {
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.02);
+    overflow: hidden;
+  }
+  .faq-question {
+    padding: 20px 25px;
+    cursor: pointer;
+    font-weight: 600;
+    position: relative;
+    user-select: none;
+    font-size: 1.05em;
+    background: #ffffff;
+    transition: all 0.3s ease;
+    color: #1e293b;
+  }
+  .faq-question:hover {
+    background-color: #f8fafc;
+    color: #2563eb;
+  }
+  .faq-question::after {
+    content: '+';
+    position: absolute;
+    right: 25px;
+    font-size: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.3s ease;
+    color: #3b82f6;
+    font-weight: 400;
+  }
+  .faq-item.open .faq-question {
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .faq-item.open .faq-question::after {
+    content: '−';
+    transform: translateY(-50%);
+  }
+  .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    padding: 0 25px;
+    background: #f8fafc;
+    transition: max-height 0.4s ease, padding 0.4s ease;
+    color: #475569;
+  }
+  .faq-item.open .faq-answer {
+    max-height: 300px;
+    padding: 20px 25px;
+  }
+
+  /* Tutorial Section */
+  .tutorial {
+    background: white;
+    padding: 35px 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    margin-bottom: 50px;
+    border: 1px solid rgba(0,0,0,0.02);
+  }
+  .tutorial ol {
+    margin-left: 20px;
+    color: #475569;
+  }
+  .tutorial ol li {
+    margin-bottom: 15px;
+    font-size: 1.05em;
+    padding-left: 10px;
+  }
+  .tutorial ol li strong {
+    color: #1e293b;
+  }
+
+  /* Contact Support Section */
+  .contact-support {
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.02);
+  }
+  .contact-support h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+  }
+  .contact-support form {
+    display: flex;
+    flex-direction: column;
+  }
+  .contact-support label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    margin-top: 20px;
+    color: #334155;
+    font-size: 15px;
+  }
+  .contact-support input,
+  .contact-support textarea {
+    padding: 14px 16px;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    resize: vertical;
+    transition: all 0.3s ease;
+    color: #334155;
+  }
+  .contact-support input:focus,
+  .contact-support textarea:focus {
+    border-color: #3b82f6;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    outline: none;
+  }
+  .contact-support button {
+    margin-top: 30px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    font-weight: 600;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+  }
+  .contact-support button:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+  }
+
+  /* Contact Details Section */
+  .contact-details {
+    margin-top: 40px;
+    padding: 35px 40px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.02);
+    color: #475569;
+  }
+  .contact-details h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #1e293b;
+    font-size: 20px;
+  }
+  .contact-details p {
+    margin: 12px 0;
+    font-size: 15px;
+  }
+  .contact-details strong {
+    color: #334155;
+    margin-right: 8px;
+  }
+  .contact-details a {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .contact-details a:hover {
+    text-decoration: underline;
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 25px;
+    font-size: 14px;
+    color: #94a3b8;
+    background: #0f172a;
+    margin-top: 60px;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .container {
+      margin: 20px auto 40px;
+      padding: 0 15px;
+    }
+    header h1 {
+      font-size: 2em;
+    }
+    .tutorial, .contact-support, .contact-details {
+      padding: 25px 20px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Mark Entry Software Helpdesk</h1>
+  <p>Project by <strong>Young Technology</strong></p>
+</header>
+
+<div class="container">
+  <p class="intro">
+    Welcome to the Helpdesk! Find quick answers, step-by-step tutorials, or reach out to us directly.
+  </p>
+<section id="achievements">
+  <h2>Our Achievements</h2>
+  <ul>
+    <li>Completed 50+ successful Projects</li>
+    <li>Used by 5000+ Users</li>
+    <li>99.9% uptime with cloud Firebase backend</li>
+    <li>Continuous updates and customer support</li>
+    <li>Trusted by educators and administrators</li>
+  </ul>
+</section>
+
+<style>
+  #achievements {
+    background: white;
+    padding: 40px 30px;
+    margin: 40px auto;
+    max-width: 800px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.02);
+    text-align: center;
+  }
+  #achievements h2 {
+    color: #1e293b;
+    font-size: 24px;
+    margin-bottom: 25px;
+  }
+  #achievements ul {
+    list-style: none;
+    padding: 0;
+    font-size: 1.05em;
+    color: #475569;
+    text-align: left;
+    display: inline-block;
+  }
+  #achievements ul li {
+    margin: 15px 0;
+    position: relative;
+    padding-left: 35px;
+  }
+  #achievements ul li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    background: #dcfce3;
+    color: #15803d;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+  }
+</style>
+<div id="social-icons">
+   <!-- WhatsApp -->
+          <a href="https://wa.me/918012676122?text=Hello%20Support%20Team,%20I%20need%20help%20regarding...%20Djhss%20software"
+       target="_blank" class="contact-link whatsapp">
+            <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp" width="50" height="50">
+        </a> 
+      <!-- Email -->
+      <a href="mailto:youngtechnology.gobi@gmail.com?subject=Support%20Request%20from%20Website%20DJHS&body=Hello%20Young%20Technology%20Support%20Team,%0A%0AI%20need%20assistance%20regarding%20...%0A%0AThank%20you.">     <img src="https://cdn-icons-png.flaticon.com/512/732/732200.png" alt="Email" width="50" height="50">
+        </a>
+
+        <!-- Instagram -->
+        <a href="https://www.instagram.com/young_technology_gobi?igsh=OWI3MXI2NW9nb2Fs" target="_blank" style="text-decoration: none;">
+            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" width="50" height="50">
+        </a>
+
+        <!-- //YouTube -->
+        <a href="https://youtube.com/@young-technology?si=q6fyp_cu15bw0ZxR" target="_blank" style="text-decoration: none;">
+            <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube" width="50" height="50">
+        </a>
+
+        <!-- Website -->
+        <a href="https://youngtechs.in" target="_blank" style="text-decoration: none;">
+            <img src="https://cdn-icons-png.flaticon.com/512/841/841364.png" alt="Website" width="50" height="50">
+        </a>
+</div>
+
+<style>
+  #social-icons {
+    position: fixed;
+    top: 40%;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: rgba(0,0,0,0.05);
+    padding: 10px;
+    border-radius: 8px 0 0 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+  }
+  #social-icons a img {
+    width: 40px;
+    height: 40px;
+    filter: grayscale(50%);
+    transition: filter 0.3s ease, transform 0.3s ease;
+    cursor: pointer;
+  }
+  #social-icons a:hover img {
+    filter: grayscale(0%);
+    transform: scale(1.2);
+  }
+
+  /* Responsive: hide on small screens */
+  @media (max-width: 600px) {
+    #social-icons {
+      display: none;
+    }
+  }
+</style>
+
+  <!-- FAQ Section -->
+  <section class="faq">
+    <h2>Frequently Asked Questions (FAQ)</h2>
+
+    <div class="faq-item">
+      <div class="faq-question">How do I add student marks?</div>
+      <div class="faq-answer">
+        <p>Contact the support team or Higher official of the schools.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Can I edit marks after saving?</div>
+      <div class="faq-answer">
+        <p>Yes, navigate back to the school mark entry and update as needed, then save again.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">How do I promote students to the next class?</div>
+      <div class="faq-answer">
+        <p>Use the "Promote" button on the student list page to move students to the next class for the new academic year.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">How to contact technical support?</div>
+      <div class="faq-answer">
+        <p>Use the contact form below or email us at <a href="mailto:youngtechnology.gobi@gmail.com">youngtechnology.gobi@gmail.com</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tutorial Section -->
+  <section class="tutorial">
+    <h2>Step-by-Step Tutorial</h2>
+    <ol>
+      <li><strong>Login:</strong> Enter your credentials to access the system.</li>
+      <li><strong>Select school Mark Entry</strong> Choose the correct Class and Section,Exam type .</li>
+      <li><strong>Enter Marks:</strong> Fill marks for students and subjects.</li>
+      <li><strong>Save:</strong> Click save to store data.</li>
+      <li><strong>Review & Edit:</strong> Verify and modify entries if necessary.</li>
+    
+  </section>
+<section class="video-carousel">
+  <h2>Helpful Tutorials on YouTube</h2>
+  <div class="video-scroll-container">
+    <iframe src="https://youtube.com/shorts/Als8B4EUu38?si=7CPQusb7C_yfxQGb" title="Tutorial 1" allowfullscreen></iframe>
+   
+  </div>
+</section>
+
+<style>
+  .video-carousel {
+    margin: 40px 0;
+  }
+  .video-carousel h2 {
+    color: #007bff;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .video-scroll-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    padding-bottom: 10px;
+    scroll-behavior: smooth;
+  }
+  .video-scroll-container::-webkit-scrollbar {
+    height: 8px;
+  }
+  .video-scroll-container::-webkit-scrollbar-thumb {
+    background-color: #007bff;
+    border-radius: 4px;
+  }
+  iframe {
+    flex: 0 0 auto;
+    width: 320px;
+    height: 180px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border: none;
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    iframe {
+      width: 260px;
+      height: 150px;
+    }
+  }
+</style>
+
+  <!-- Contact Support Section -->
+  <section class="contact-support">
+    <h2>Contact Support</h2>
+    <form id="supportForm" onsubmit="return handleSupportSubmit(event)">
+      <label for="name">Name *</label>
+      <input type="text" id="name" name="name" placeholder="Your full name" required />
+
+      <label for="email">Email *</label>
+      <input type="email" id="email" name="email" placeholder="Your email address" required />
+
+      <label for="message">Message / Issue *</label>
+      <textarea id="message" name="message" rows="5" placeholder="Describe your question or issue" required></textarea>
+
+      <button type="submit">Send Message</button>
+    </form>
+  </section>
+
+  <!-- Contact Details -->
+  <section class="contact-details">
+    <h3>Contact Information</h3>
+    <p><strong>Email:</strong><a href="mailto:youngtechnology.gobi@gmail.com">youngtechnology.gobi@gmail.com</a></p>
+    <p><strong>Phone:</strong> <a href="tel:+918012676122">+91 98765 43210</a></p>
+    <p><strong>Website:</strong> <a href="https://youngtechs.in" target="_blank" rel="noopener">https://youngtechs.in</a></p>
+    
+  </section>
+</div>
+
+<footer>
+  &copy; 2025 Young Technology. All rights reserved.
+</footer>
+
+<script>
+  // Initialize Firebase
+  const firebaseConfig = {
+       apiKey: "AIzaSyCeQ5M9dqhud_0WSD7P_Lry_jRTMY7ACws",
+            authDomain: "webpage-f7c87.firebaseapp.com",
+            databaseURL: "https://webpage-f7c87-default-rtdb.firebaseio.com",
+            projectId: "webpage-f7c87",
+            storageBucket: "webpage-f7c87.firebasestorage.app",
+            messagingSenderId: "270449608332",
+            appId: "1:270449608332:web:9da8a5339080801025dda9",
+            measurementId: "G-7N6TQNJN5H"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  // FAQ toggle functionality
+  document.querySelectorAll('.faq-question').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.parentElement;
+      item.classList.toggle('open');
+    });
+  });
+
+  // Handle contact form submit - save to Firebase
+  function handleSupportSubmit(event) {
+    event.preventDefault();
+
+    const name = event.target.name.value.trim();
+    const email = event.target.email.value.trim();
+    const message = event.target.message.value.trim();
+
+    if (!name || !email || !message) {
+      alert('Please fill in all required fields.');
+      return false;
+    }
+
+    // Create a new support request in the DB
+    const newSupportRef = db.ref('supportRequests').push();
+    newSupportRef.set({
+      name: name,
+      email: email,
+      message: message,
+      timestamp: new Date().toISOString()
+    })
+    .then(() => {
+      alert('Thank you for contacting support! We will get back to you soon.');
+      event.target.reset();
+    })
+    .catch(err => {
+      console.error('Error saving support request:', err);
+      alert('Sorry, there was an error submitting your request. Please try again later.');
+    });
+
+    return false;
+  }
+</script>
+
+</body>
+</html>

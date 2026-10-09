@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>All Reports</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f4f7fb;
+      color: #334155;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Menu Bar */
+    .menu-bar {
+      background: #ffffff;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .menu-bar .menu-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .menu-bar a {
+      color: #475569;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 15px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      background: transparent;
+    }
+
+    .menu-bar a:hover {
+      background-color: #f1f5f9;
+      color: #2563eb;
+      transform: translateY(-2px);
+    }
+    
+    .menu-bar a.signout {
+      background: #ef4444;
+      color: white;
+      box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+      border: none !important;
+    }
+
+    .menu-bar a.signout:hover {
+      background: #dc2626;
+      color: white;
+      box-shadow: 0 6px 15px rgba(239, 68, 68, 0.3);
+    }
+
+    .container {
+      padding: 40px 20px;
+      max-width: 1100px;
+      margin: auto;
+      flex-grow: 1;
+      width: 100%;
+    }
+
+    h2 {
+      margin-top: 20px;
+      margin-bottom: 30px;
+      font-size: 26px;
+      color: #1e293b;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      padding-bottom: 10px;
+      position: relative;
+    }
+    
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(90deg, #2563eb, #3b82f6);
+      border-radius: 2px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      padding: 30px 20px;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      text-align: center;
+      border: 1px solid rgba(0,0,0,0.02);
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(37, 99, 235, 0.1);
+      border-color: rgba(37, 99, 235, 0.1);
+    }
+
+    .card a {
+      text-decoration: none;
+      color: #1e293b;
+      font-weight: 600;
+      font-size: 18px;
+      display: block;
+      transition: color 0.3s ease;
+    }
+    
+    .card:hover a {
+      color: #2563eb;
+    }
+
+    /* ==== FOOTER ==== */
+    footer {
+      background: #0f172a;
+      color: #94a3b8;
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      margin-top: auto;
+    }
+
+    /* ==== LOGIN SCREEN ==== */
+    .login-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0b1a2d, #1a365d, #2563eb);
+      background-size: 200% 200%;
+      animation: gradientBG 15s ease infinite;
+    }
+    
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .login-box {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      width: 90%;
+      max-width: 380px;
+      text-align: center;
+      animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    @keyframes slideIn {
+      0% { transform: translateY(60px) scale(0.95); opacity: 0; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .login-box h2 {
+      margin-bottom: 25px;
+      margin-top: 0;
+      color: #1e293b;
+    }
+    
+    .login-box h2::after {
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 14px 16px;
+      margin: 10px 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background-color: #f8fafc;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      color: #334155;
+    }
+    
+    .login-box input:focus {
+      border-color: #3b82f6;
+      background-color: #ffffff;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+      outline: none;
+    }
+
+    .login-box button {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      padding: 14px;
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    }
+    
+    .login-box button:hover {
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 768px) {
+      .menu-bar {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+      .menu-bar .menu-links {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div class="login-container" id="login-screen">
+  <div class="login-box">
+    <h2>Admin Login</h2>
+    <input type="text" id="username" placeholder="Username" value="" />
+    <input type="password" id="password" placeholder="Password" value=""/>
+    <button onclick="checkLogin()">Login</button>
+    <p id="error-msg" style="color: red; margin-top: 10px;"></p>
+  </div>
+</div>
+<!-- Protected Content -->
+<div id="main-content" class="hidden">
+
+  <div class="menu-bar">
+    <div class="menu-links">
+      <a href="index.html">Home</a>
+      <a href="index.html" class="signout">SIGN OUT</a>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- School Reports Section -->
+    <div id="school-reports">
+      <h2>📘 School Reports</h2>
+      <div class="card-grid">
+        <div class="card" id="school-view-report"><a href="viewreport.html">📄 View Report</a></div>
+        <div class="card" id="school-compare"><a href="compare.html">📊 Compare Marks</a></div>
+        <div class="card" id="school-teacher"><a href="teacher report.html">👩‍🏫 Teacher Report</a></div>
+        <div class="card" id="school-section"><a href="sectionreport.html">🏫 Class-wise Report</a></div>
+        <div class="card" id="school-top3"><a href="top3.html">Top List</a></div>
+        <div class="card" id="school-adjust"><a href="adjust.html">Mark Range Finder</a></div>
+      </div>
+    </div>
+
+
+<br><br><br>
+  <footer>&copy; 2025 YOUNG TECHNOLOGY | All rights reserved</footer>
+
+<!-- Login Script -->
+<script>
+  function checkLogin() {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const errorMsg = document.getElementById("error-msg");
+
+    if (username === "admin" && password === "admin@djhss") {
+      document.getElementById("login-screen").classList.add("hidden");
+      document.getElementById("main-content").classList.remove("hidden");
+    } else if (username === "teacher" && password === "teacher") {
+      document.getElementById("login-screen").classList.add("hidden");
+      document.getElementById("main-content").classList.remove("hidden");
+
+      // Hide everything except School View Report
+      document.getElementById("school-compare").style.display = "none";
+      document.getElementById("school-teacher").style.display = "none";
+      document.getElementById("school-section").style.display = "none";
+      document.getElementById("school-top3").style.display = "none";
+      document.getElementById("school-adjust").style.display = "none";
+      document.getElementById("govt-reports").style.display = "none";
+    } else {
+      errorMsg.textContent = "Invalid username or password.";
+    }
+  }
+</script>
+
+
+</body>
+</html>
+

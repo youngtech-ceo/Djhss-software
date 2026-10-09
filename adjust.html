@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Result Analysis by Marks</title>
+  <style>
+    body {
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      background-color: #f4f7fb;
+      margin: 0;
+      padding: 0;
+      color: #334155;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: linear-gradient(135deg, #0b1a2d, #1a365d);
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    .navbar h2 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #fff;
+    }
+
+    .nav-buttons-container {
+      margin: 20px;
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .nav-buttons-container button,
+    button {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .nav-buttons-container button:hover,
+    button:hover {
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+    }
+
+    .controls {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      border: 1px solid rgba(0,0,0,0.02);
+      max-width: 900px;
+      margin: 0 auto 40px auto;
+      text-align: center;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      align-items: center;
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    select, input[type="number"] {
+      padding: 12px 16px;
+      font-size: 15px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: #334155;
+      outline: none;
+      transition: all 0.3s ease;
+      min-width: 160px;
+    }
+
+    select:focus, input[type="number"]:focus {
+      border-color: #3b82f6;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .mark-range-container {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      border: 1px solid rgba(0,0,0,0.02);
+      max-width: 900px;
+      margin: 0 auto 40px auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      animation: fadeIn 1s ease-out forwards;
+    }
+
+    .mark-range-container div {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f8fafc;
+      padding: 15px 20px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      transition: all 0.3s ease;
+    }
+
+    .mark-range-container div:hover {
+      border-color: #93c5fd;
+      background: #ffffff;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.05);
+    }
+
+    .mark-range-container label {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 0;
+    }
+
+    .mark-range-container input {
+      width: 80px;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .result-container {
+      margin: 0 auto 40px auto;
+      text-align: center;
+      max-width: 900px;
+      width: 95%;
+    }
+
+    .result-card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      border: 1px solid rgba(0,0,0,0.02);
+      width: 100%;
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    .result-card h3 {
+      margin-top: 0;
+      color: #1e293b;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 12px;
+      overflow: hidden;
+      font-size: 15px;
+      border: 1px solid #e2e8f0;
+    }
+
+    th, td {
+      padding: 15px 20px;
+      text-align: center;
+      border-bottom: 1px solid #e2e8f0;
+      border-right: 1px solid #e2e8f0;
+    }
+
+    th:last-child, td:last-child {
+      border-right: none;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #1e293b;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+    }
+
+    tr:nth-child(even) { background-color: #fbfcfd; }
+    tr:hover { background-color: #f1f5f9; }
+
+    /* Footer */
+    footer {
+      background: #0f172a;
+      color: #94a3b8;
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+<div class="navbar">
+  <h2>Result Analysis by Marks</h2>
+</div>
+
+<div class="nav-buttons-container">
+  <button onclick="goToReports()">← Back to All Reports</button>
+  <button onclick="goToHome()">🏠 Home</button>
+</div>
+
+<script>
+  function goToReports() { window.location.href = "all report.html"; }
+  function goToHome() { window.location.href = "index.html"; }
+</script>
+
+<div class="controls">
+  <select id="class-select">
+    <option value="">Select Class</option>
+    <option value="6">6th Standard</option>
+    <option value="7">7th Standard</option>
+    <option value="8">8th Standard</option>
+    <option value="9">9th Standard</option>
+    <option value="10">10th Standard</option>
+    <option value="11">11th Standard</option>
+    <option value="12">12th Standard</option>
+  </select>
+
+  <select id="section-select">
+    <option value="">Select Section</option>
+    <option value="A">Section A</option>
+    <option value="B">Section B</option>
+    <option value="C">Section C</option>
+    <option value="D">Section D</option>
+    <option value="E">Section E</option>
+    <option value="F">Section F</option>
+  </select>
+
+  <select id="exam-select">
+    <option value="1st-Midterm">1st-Midterm</option>
+    <option value="QUATERLY">QUATERLY</option>
+    <option value="2nd Midterm">2nd Midterm</option>
+    <option value="HALFYEARLY">HALFYEARLY</option>
+    <option value="REVISION-1">REVISION-1</option>
+    <option value="REVISION-2">REVISION-2</option>
+    <option value="REVISION-3">REVISION-3</option>
+    <option value="ANNUAL EXAM">ANNUAL EXAM</option>
+  </select>
+
+  <button id="load-stats-button">Load Statistics</button>
+</div>
+
+<div class="mark-range-container">
+  <div>
+    <label for="range-1-start">Range 1: </label>
+    <input type="number" id="range-1-start" placeholder="100" min="0"> - 
+    <input type="number" id="range-1-end" placeholder="200" min="0">
+  </div>
+
+  <div>
+    <label for="range-2-start">Range 2: </label>
+    <input type="number" id="range-2-start" placeholder="200" min="0"> - 
+    <input type="number" id="range-2-end" placeholder="250" min="0">
+  </div>
+
+  <div>
+    <label for="range-3-start">Range 3: </label>
+    <input type="number" id="range-3-start" placeholder="250" min="0"> - 
+    <input type="number" id="range-3-end" placeholder="300" min="0">
+  </div>
+
+  <div>
+    <label for="range-4-start">Range 4: </label>
+    <input type="number" id="range-4-start" placeholder="300" min="0"> - 
+    <input type="number" id="range-4-end" placeholder="350" min="0">
+  </div>
+
+  <div>
+    <label for="range-5-start">Range 5: </label>
+    <input type="number" id="range-5-start" placeholder="350" min="0"> - 
+    <input type="number" id="range-5-end" placeholder="400" min="0">
+  </div>
+
+  <div>
+    <label for="range-6-start">Range 6: </label>
+    <input type="number" id="range-6-start" placeholder="400" min="0"> - 
+    <input type="number" id="range-6-end" placeholder="500" min="0">
+  </div>
+</div>
+
+<div id="result" class="result-container"></div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCeQ5M9dqhud_0WSD7P_Lry_jRTMY7ACws",
+    authDomain: "webpage-f7c87.firebaseapp.com",
+    databaseURL: "https://webpage-f7c87-default-rtdb.firebaseio.com",
+    projectId: "webpage-f7c87",
+    storageBucket: "webpage-f7c87.firebasestorage.app",
+    messagingSenderId: "270449608332",
+    appId: "1:270449608332:web:9da8a5339080801025dda9",
+    measurementId: "G-7N6TQNJN5H"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+
+  document.getElementById("load-stats-button").addEventListener("click", () => {
+    const classNum = parseInt(document.getElementById("class-select").value);
+    const section = document.getElementById("section-select").value;
+    const examType = document.getElementById("exam-select").value;
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = "Loading...";
+
+    const ranges = [
+      { start: parseInt(document.getElementById("range-1-start").value), end: parseInt(document.getElementById("range-1-end").value) },
+      { start: parseInt(document.getElementById("range-2-start").value), end: parseInt(document.getElementById("range-2-end").value) },
+      { start: parseInt(document.getElementById("range-3-start").value), end: parseInt(document.getElementById("range-3-end").value) },
+      { start: parseInt(document.getElementById("range-4-start").value), end: parseInt(document.getElementById("range-4-end").value) },
+      { start: parseInt(document.getElementById("range-5-start").value), end: parseInt(document.getElementById("range-5-end").value) },
+      { start: parseInt(document.getElementById("range-6-start").value), end: parseInt
+      (document.getElementById("range-6-end").value) },
+      ];
+      const classRef = database.ref(`students/${classNum}/${section}/${examType}`);
+
+classRef.once('value').then(snapshot => {
+  const studentsData = snapshot.val();
+  const rangeCounts = Array(ranges.length).fill(0);
+
+  for (let studentId in studentsData) {
+    const student = studentsData[studentId];
+    const totalMarks = student.total;
+
+
+    ranges.forEach((range, index) => {
+      if (totalMarks >= range.start && totalMarks <= range.end) {
+        rangeCounts[index]++;
+      }
+    });
+  }
+
+  let statsHTML = `<div class="result-card"><h3>Result Analysis</h3><table><tr><th>Mark Range</th><th>Student Count</th></tr>`;
+  ranges.forEach((range, index) => {
+    statsHTML += `<tr><td>${range.start}-${range.end}</td><td>${rangeCounts[index]}</td></tr>`;
+  });
+  statsHTML += '</table></div>';
+  resultDiv.innerHTML = statsHTML;
+}).catch(err => {
+  resultDiv.innerHTML = `Error loading data: ${err.message}`;
+});
+});
+</script>
+
+</body> </html>

@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Mark Entry</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Include jsPDF and AutoTable -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.11/jspdf.plugin.autotable.min.js"></script>
+
+
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.3.0/docx.min.js"></script>
+
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" sizes="16x16" href="favicon-16x16.png">
+    <link rel="icon" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" sizes="192x192" href="android-chrome-192x192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+
+<link rel="manifest" href="/site.webmanifest">
+
+
+<link rel="stylesheet" href="index.css">
+<link rel="stylesheet" href="viewreport.css">
+
+    <style>
+      /* Styling for the report table */
+    </style>
+   
+    <script>
+
+      
+
+
+  // Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCeQ5M9dqhud_0WSD7P_Lry_jRTMY7ACws",
+  authDomain: "webpage-f7c87.firebaseapp.com",
+  databaseURL: "https://webpage-f7c87-default-rtdb.firebaseio.com",
+  projectId: "webpage-f7c87",
+  storageBucket: "webpage-f7c87.firebasestorage.app",
+  messagingSenderId: "270449608332",
+  appId: "1:270449608332:web:9da8a5339080801025dda9",
+  measurementId: "G-7N6TQNJN5H"
+};
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+    </script>
+  </head>
+  
+
+ 
+   
+</head>
+<body>
+<!-- Navbar -->
+
+
+    <h1>Class Analysis</h1>
+</div>
+<div class="nav-buttons-container">
+    <button onclick="goToReports()">← Back to All Reports</button>
+    <button onclick="goToHome()">🏠 Home</button>
+</div>
+
+<script>
+    function goToReports() {
+        window.location.href = "all report.html";
+    }
+    
+    function goToHome() {
+        window.location.href = "index.html";
+    }
+    </script>
+    
+
+<script>
+
+
+function toggleMenu() {
+    const menuLinks = document.querySelector('.menu-links');
+    menuLinks.classList.toggle('show');
+}
+
+</script>
+
+    
+    <br><br>
+
+
+
+
+
+
+
+
+
+  
+    
+
+
+
+
+
+
+<div id="compare" style="visibility: visible;">
+    
+  <div id="aa" >
+
+    <label for="exam-type">Select Exam Type:</label>
+    <select id="exam-type">
+      <option >Select</option>
+      <option value="1st-Midterm">1st-Midterm</option>
+      <option value="QUATERLY">QUATERLY</option>
+      <option value="2nd Midterm">2nd Midterm</option>
+      <option value="HALFYEARLY">HALFYEARLY</option>
+      <option value="REVISION-1">REVISION-1</option>
+      <option value="REVISION-2">REVISION-2</option>
+      <option value="REVISION-3">REVISION-3</option>
+      <option value="ANNUAL EXAM">ANNUAL EXAM</option>
+    </select>
+
+    <label>Class:</label>
+    <select id="class-select">
+      <option value="">Select Class</option>
+      <option value="6">6th Standard</option>
+      <option value="7">7th Standard</option>
+      <option value="8">8th Standard</option>
+      <option value="9">9th Standard</option>
+      <option value="10">10th Standard</option>
+      <option value="11">11th Standard</option>
+      <option value="12">12th Standard</option>
+    </select>
+    <label>Section:</label>
+    <select id="section-select" style="display: none;">
+      <option value="">Select Section</option>
+      <option value="A">A</option>
+      <option value="A1">A1</option>
+      <option value="B">B</option>
+      <option value="C">C</option>
+      <option value="D">D</option>
+      <option value="E">E</option>
+      <option value="F">F</option>
+    </select>
+   
+    <button id="view-report-button">View Report</button>
+    
+
+
+
+  </div>
+
+ 
+  <div id="result"></div>
+  <div id="report-container"></div>
+    </div></div>
+    <script>
+        function adjustElementWidth() {
+          const elements = document.querySelectorAll(" #student-list-container, #result, #report-container");
+        
+          elements.forEach(element => {
+            if (window.innerWidth > 1024) {
+              element.style.width = '60%';
+            } else if (window.innerWidth <= 1024 && window.innerWidth > 768) {
+              element.style.width = '80%';
+            } else if (window.innerWidth <= 768 && window.innerWidth > 480) {
+              element.style.width = '90%';
+            } else {
+              element.style.width = '95%';
+            }
+          });
+        }
+        
+        // Adjust on load and resize
+        window.onload = adjustElementWidth;
+        window.onresize = adjustElementWidth;
+        </script>
+        
+  
+  <script>
+ 
+
+    const classSelect = document.getElementById("class-select");
+    const sectionSelect = document.getElementById("section-select");
+    const subjectSelect = document.getElementById("subject-select");
+    
+    const displayClass = document.getElementById("display-class");
+    const displaySection = document.getElementById("display-section");
+    const displaySubject = document.getElementById("display-subject");
+    const displayTeacher = document.getElementById("display-teacher");
+    const infoDiv = document.getElementById("info-div");
+    const resultDiv = document.getElementById("result");
+    const reportContainer = document.getElementById("report-container");
+
+// Teacher names data remains unchanged
+    </script>
+    
+    <script src="studentsname.js"></script>
+    <script src="teachersname.js"></script>
+    <script>
+    classSelect.addEventListener("change", (e) => {
+    const selectedClass = parseInt(e.target.value);
+    sectionSelect.style.display = "inline";
+
+    let subjects;
+    if (selectedClass <= 10) {
+      subjects = ["TAMIL", "ENGLISH", "MATHS", "SCIENCE", "SOCIAL SCIENCE"];
+    } else if (selectedClass >= 11) {
+        if (selectedSection === 'A') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS", "PHYSICS", "CHEMISTRY", "BIOLOGY"];
+        }  if (selectedSection === 'A1') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS","PHYSICS", "CHEMISTRY", "COMPUTER_SCIENCE" ];
+        } if (selectedSection === 'B') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS", "PHYSICS", "CHEMISTRY", "COMPUTER_SCIENCE"];
+        } if (selectedSection === 'C') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS", "PHYSICS", "CHEMISTRY", "BIOLOGY"];
+        } if (selectedSection === 'D') {
+            subjects = ["TAMIL", "ENGLISH",  "HISTORY","ECONOMICS", "COMMERCE", "ACCOUNTS"];
+        } if (selectedSection === 'E') {
+            subjects = ["TAMIL", "ENGLISH", "ECONOMICS", "COMMERCE", "ACCOUNTS", "COMPUTER_APPLICATION"];
+        } if (selectedSection === 'F') {
+            subjects = ["TAMIL", "ENGLISH", "BIOLOGY","AGRI", "AGRI_PRACTICAL",  "EMPS"];
+        }
+     }
+    
+});
+
+sectionSelect.addEventListener("change", (e) => {
+    const selectedClass = parseInt(classSelect.value);
+    const selectedSection = e.target.value;
+
+    const selectedStudents = students[selectedClass][selectedSection] || [];
+    document.getElementById("student-list-container").innerHTML = ""; // Clear previous data
+
+    const studentListTable = document.createElement("table");
+
+    let subjects;
+   
+    
+    if (selectedClass <= 10) {
+      subjects = ["TAMIL", "ENGLISH", "MATHS", "SCIENCE", "SOCIAL SCIENCE"];
+    } else if (selectedClass >= 11) {
+        if (selectedSection === 'A') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS", "PHYSICS", "CHEMISTRY", "BIOLOGY"];
+        }  if (selectedSection === 'A1') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS","PHYSICS", "CHEMISTRY", "COMPUTER_SCIENCE" ];
+        } if (selectedSection === 'B') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS", "PHYSICS", "CHEMISTRY", "COMPUTER_SCIENCE"];
+        } if (selectedSection === 'C') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS", "PHYSICS", "CHEMISTRY", "BIOLOGY"];
+        } if (selectedSection === 'D') {
+            subjects = ["TAMIL", "ENGLISH",  "HISTORY","ECONOMICS", "COMMERCE", "ACCOUNTS"];
+        } if (selectedSection === 'E') {
+            subjects = ["TAMIL", "ENGLISH", "ECONOMICS", "COMMERCE", "ACCOUNTS", "COMPUTER_APPLICATION"];
+        } if (selectedSection === 'F') {
+            subjects = ["TAMIL", "ENGLISH", "BIOLOGY","AGRI", "AGRI_PRACTICAL",  "EMPS"];
+        }
+     }
+   
+
+
+
+
+
+ 
+    fetchStudentMarks(selectedClass, selectedSection);
+    const teacher = teacherNames[selectedClass][selectedSection];
+    displayTeacher.textContent = teacher ? `${teacher.CLASS_TEACHER}` : "Not Assigned";
+
+
+
+    function fetchStudentMarks(selectedClass, selectedSection) {
+    const examType = document.getElementById("exam-type").value; // Get selected exam type
+    const classRef = database.ref(`students/${selectedClass}/${selectedSection}/${examType}`); // Use examType in the path
+    
+
+    }
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Event listener for generating the report
+document.getElementById("view-report-button").addEventListener("click", () => {
+    const examType1 = document.getElementById("exam-type").value; // Get selected Exam Type
+    const selectedClass = parseInt(document.getElementById("class-select").value); // Get selected Class
+    const selectedSection = document.getElementById("section-select").value; // Get selected Section
+
+    // Ensure all fields are selected
+    if (!examType1 || !selectedClass || !selectedSection) {
+        alert("Please select all fields to compare exams.");
+        return;
+    }
+
+    const comparisonContainer = document.getElementById("report-container");
+    comparisonContainer.style.visibility = "visible";
+    comparisonContainer.innerHTML = "<h3>Loading Report...</h3>"; // Placeholder while loading data
+
+    const classRef1 = database.ref(`students/${selectedClass}/${selectedSection}/${examType1}`); // Reference for Exam Type 1
+
+    // Fetch the data for the selected exam type
+    classRef1.once('value')
+        .then(snapshot1 => {
+            const marks = snapshot1.val();
+
+            if (marks) {
+                // Now generate the report
+                generateReport(marks, selectedClass, selectedSection, examType1);
+            } else {
+                console.error("Data not found for the selected exams.");
+                alert("Data not found for the selected exams.");
+                comparisonContainer.innerHTML = "<h3>No data found for the selected exams.</h3>";
+            }
+        })
+        .catch((error) => {
+            console.error("Error fetching data: ", error);
+            comparisonContainer.innerHTML = "<h3>Error fetching data. Please try again.</h3>";
+        });
+});
+
+
+
+
+function generateReport(marks, selectedClass, selectedSection, examType) {
+    const schoolName = "DIAMOND JUBILEE HIGHER SECONDARY SCHOOL";
+    const totalStudents = marks.length;
+
+    let passes = 0;
+    let fails = 0;
+    let absents = 0;
+
+    // Calculate overall class averages, pass percentages, etc.
+    const averageMarks = totalStudents ? (marks.reduce((sum, { total }) => sum + total, 0) / totalStudents).toFixed(2) : 0;
+    const passPercentage = totalStudents ? ((passes / totalStudents) * 100).toFixed(2) : 0;
+
+    let subjects;
+    // Define subjects based on the class and section
+    if (selectedClass <= 10) {
+        subjects = ["TAMIL", "ENGLISH", "MATHS", "SCIENCE", "SOCIAL SCIENCE"];
+    } else if (selectedClass >= 11) {
+        if (selectedSection === 'A') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS", "PHYSICS", "CHEMISTRY", "BIOLOGY"];
+        }
+        if (selectedSection === 'A1') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS", "PHYSICS", "CHEMISTRY", "COMPUTER_SCIENCE"];
+        }
+        if (selectedSection === 'B') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS", "PHYSICS", "CHEMISTRY", "COMPUTER_SCIENCE"];
+        }
+        if (selectedSection === 'C') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS", "PHYSICS", "CHEMISTRY", "BIOLOGY"];
+        }
+        if (selectedSection === 'D') {
+            subjects = ["TAMIL", "ENGLISH", "HISTORY", "ECONOMICS", "COMMERCE", "ACCOUNTS"];
+        }
+        if (selectedSection === 'E') {
+            subjects = ["TAMIL", "ENGLISH", "ECONOMICS", "COMMERCE", "ACCOUNTS", "COMPUTER_APPLICATION"];
+        }
+        if (selectedSection === 'F') {
+            subjects = ["TAMIL", "ENGLISH", "BIOLOGY", "AGRI", "AGRI_PRACTICAL", "EMPS"];
+        }
+    }
+
+    // Initialize subject-wise tracking variables
+    const subjectTotals = new Array(subjects.length).fill(0);
+    const subjectPasses = new Array(subjects.length).fill(0);
+    const subjectFails = new Array(subjects.length).fill(0);
+    const subjectAbsents = new Array(subjects.length).fill(0);
+    const gradeCounts = subjects.map(() => ({ A: 0, B: 0, C: 0, D: 0 }));
+
+    // Initialize analysis for failure in only one subject
+    const failureSubjectAnalysis = new Array(subjects.length).fill(0); // For students failing only one subject
+    const failureCountByNumberOfSubjects = new Array(subjects.length + 1).fill(0); // Track number of subjects failed
+
+    // Initialize counters for overall percentage ranges
+    const percentageRanges = {
+        below35: 0,
+        between36And60: 0,
+        between61And80: 0,
+        between81And90: 0,
+        between91And99: 0,
+        hundred: 0
+    };
+    marks.forEach(student => {
+        const studentMarks = student.marks || [];
+        let failCount = 0; // Initialize failCount for the student
+        let totalMarks = 0;
+        let isAbsentForClass = false; // Track if student is absent for any subject
+        let allPassed = true; // Track if student passes all subjects
+        let failedSubjects = [];
+
+        studentMarks.forEach((mark, index) => {
+            if (mark === "absent") {
+                subjectAbsents[index]++;
+                isAbsentForClass = true;
+            } else if (typeof mark === "number" && !isNaN(mark)) {
+                subjectTotals[index] += mark;
+                totalMarks += mark;
+
+                if (mark < 35) {
+                    subjectFails[index]++;
+                    failCount++;
+                    failedSubjects.push(subjects[index]);
+                    allPassed = false;
+                } else {
+                    subjectPasses[index]++;
+                }
+
+                if (mark >= 60) gradeCounts[index].A++;
+                else if (mark >= 40 && mark <= 59) gradeCounts[index].B++;
+                else if (mark >= 26 && mark <= 39) gradeCounts[index].C++;
+                else if (mark <= 25) gradeCounts[index].D++;
+                else gradeCounts[index].D++;
+            }
+        });
+        // Only update failure data if the student is not absent
+        if (failCount !== "Absent") {
+            if (!isAbsentForClass) {
+                // Update failure count by the number of subjects failed (only if student is not absent)
+                failureCountByNumberOfSubjects[failCount]++;
+                
+                // If the student failed only one subject, track it in the failureSubjectAnalysis
+                if (failCount === 1) {
+                    const failedSubjectIndex = subjects.indexOf(failedSubjects[0]);
+                    failureSubjectAnalysis[failedSubjectIndex]++;
+                }
+            }
+
+            // If the student is absent for any subject, mark as "Absent"
+            if (isAbsentForClass) {
+                student.status = "Absent";
+                failCount = "Absent";
+                absents++;
+            } else {
+                // Otherwise, set status based on if student passed all subjects
+                student.status = allPassed ? "Pass" : "Fail";
+            }
+        }
+
+        student.totalMarks = totalMarks;  // Add total marks to student object
+        student.failCount = failCount; // Store fail count in student object
+
+        const percentage = (totalMarks / (subjects.length * 100)) * 100;
+
+        if (percentage < 35) {
+            percentageRanges.below35++;
+        } else if (percentage >= 36 && percentage <= 60) {
+            percentageRanges.between36And60++;
+        } else if (percentage >= 61 && percentage <= 80) {
+            percentageRanges.between61And80++;
+        } else if (percentage >= 81 && percentage <= 90) {
+            percentageRanges.between81And90++;
+        } else if (percentage >= 91 && percentage <= 99) {
+            percentageRanges.between91And99++;
+        } else if (percentage === 100) {
+            percentageRanges.hundred++;
+        }
+    });
+
+    // Update pass and fail counts excluding absentees
+    passes = marks.filter(student => student.status === "Pass").length;
+    fails = marks.filter(student => student.status === "Fail").length;
+
+    const subjectAverages = subjectTotals.map((total, index) =>
+        (total / (totalStudents - subjectAbsents[index])).toFixed(2)
+    );
+
+    const subjectPassPercentages = subjectPasses.map((passCount, index) => {
+        const totalStudentsForSubject = totalStudents - subjectAbsents[index];
+        return totalStudentsForSubject > 0 ? ((passCount / totalStudentsForSubject) * 100).toFixed(2) : 0;
+    });
+
+    const subjectPresent = subjectAbsents.map(absentCount => totalStudents - absentCount);
+
+    function getGradeAndColor(mark) {
+        if (mark === "Absent") return { grade: "Absent", color: "gray" };
+        if (mark <= 25) return { grade: "D", color: "red" };
+        if (mark >= 26 && mark <= 39) return { grade: "C", color: "orange" };
+        if (mark >= 40 && mark <= 59) return { grade: "B", color: "blue" };
+         if (mark >= 60 ) return { grade: "A", color: "green" };
+        return { grade: "A", color: "green" };
+    }
+
+    // Sort students based on total marks in descending order and assign ranks
+    let sortedStudents = marks.filter(student => student.status === "Pass").sort((a, b) => b.totalMarks - a.totalMarks);
+
+    // Assign ranks
+    sortedStudents.forEach((student, index) => {
+        student.rank = index + 1;  // Rank starts from 1
+    });
+
+    // Calculate overall class percentage
+    const totalPresentStudents = marks.filter(student =>
+        student.marks.every(mark => mark !== "absent")
+    ).length; // Calculate overall class percentage
+    const overallClassPercentage = totalPresentStudents
+        ? ((passes / totalPresentStudents) * 100).toFixed(2)
+        : 0;
+
+    // Generate the report HTML
+    const reportContainer = document.getElementById("report-container");
+    reportContainer.innerHTML = `
+        <table>
+            <tbody>
+                <tr>
+                    <th colspan="6">SCHOOL: ${schoolName}</th>
+                    <th colspan="6">EXAM TYPE: ${examType}</th>
+                </tr>
+                <tr><th colspan="12">Overall Pass Percentage: ${overallClassPercentage}%</th></tr>
+                <tr>
+                    <th>Class</th><td>${selectedClass}</td>
+                    <th>Section</th><td>${selectedSection}</td>
+                    <th>Total Students</th><td>${totalStudents}</td>
+                    <th>Pass Candidates</th><td>${passes}</td>
+                    <th>Fail Candidates</th><td>${fails}</td>
+                    <th>Absent Students</th><td>${absents}</td>
+                </tr>
+                <tr><th colspan="12"></th></tr>
+            </tbody>
+            <tbody>
+                <tr>
+                    <th>Student Name</th>
+                    ${subjects.map(subject => `<th>${subject}</th>`).join('')}
+                    <th>Total Marks</th>
+                    <th>Percentage</th>
+                    <th>Status</th>
+                    <th>Fail Count</th>
+                    <th>Rank</th>
+                </tr>
+                ${marks.map(({ name, marks: studentMarks, total, status, rank, failCount }) => {
+                    const percentage = (total / (subjects.length * 100)) * 100;
+                    return `
+                        <tr>
+                            <td>${name}</td>
+                            ${studentMarks.slice(0, subjects.length).map((mark, index) => {
+                                const { grade, color } = getGradeAndColor(mark);
+                                return `<td style="color: ${color};">${mark === "absent" ? "Absent" : `${mark} (${grade})`}</td>`;
+                            }).join('')}
+                            <td>${total}</td>
+                            <td>${percentage.toFixed(2)}%</td>
+                            <td>${status}</td>
+                            <td>${failCount}</td>
+                            <td>${rank || 'N/A'}</td>
+                        </tr>
+                    `;
+                }).join('')}
+                
+                <tr><th colspan="12">Subject Wise Analysis</th></tr>
+                <tr>
+                    <th>Subject</th><th>Teacher Name</th><th>Absent Count</th><th>Present Count</th>
+                    <th>Total Students Passed</th><th>Fail Count</th><th>Average Marks</th>
+                    <th>Pass Percentage</th><th>A Grade</th><th>B Grade</th><th>C Grade</th><th>D Grade</th>
+                </tr>
+                ${subjects.map((subject, index) => {
+                    const teacherName = teacherNames[selectedClass]?.[selectedSection]?.[subject] || "Not Assigned";
+                    return `
+                        <tr>
+                            <td>${subject}</td>
+                            <td>${teacherName}</td>
+                            <td>${subjectAbsents[index]}</td>
+                            <td>${subjectPresent[index]}</td>
+                            <td>${subjectPasses[index]}</td>
+                            <td>${subjectFails[index]}</td>
+                            <td>${subjectAverages[index]}</td>
+                            <td>${subjectPassPercentages[index]}%</td>
+                            <td>${gradeCounts[index].A}</td>
+                            <td>${gradeCounts[index].B}</td>
+                            <td>${gradeCounts[index].C}</td>
+                            <td>${gradeCounts[index].D}</td>
+                        </tr>
+                    `;
+                }).join('')}
+            </tbody>
+        </table>
+        <h3>Failure Distribution</h3>
+        <table>
+            <tbody>
+                <tr>
+                    <th>Subject</th>
+                    <th>Number of Students Failing Due to This Subject</th>
+                    <th>Number of Subjects Failed</th>
+                    <th>Number of Students</th>
+                </tr>
+            </tbody>
+            <tbody>
+                ${subjects.map((subject, index) => {
+                    return `
+                        <tr>
+                            <td>${subject}</td>
+                            <td>${failureSubjectAnalysis[index]}</td>
+                            <td>No of Fail in ${index + 1} Subject</td>
+                            <td>${failureCountByNumberOfSubjects[index + 1]}</td>
+                        </tr>
+                    `;
+                }).join('')}
+            </tbody>
+        </table>
+       
+    `;
+}
+
+</Script>
+
+
+
+
+
+  <footer>&copy; 2025 YOUNG TECHNOLOGY | All rights reserved</footer>
+
+  </body>
+
+</html> 
+

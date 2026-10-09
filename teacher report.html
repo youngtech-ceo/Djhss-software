@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Report Analysis</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="nav.css">
+   <style>
+    body {
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        background-color: #f4f7fb;
+        margin: 0;
+        padding: 0;
+        color: #334155;
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Navbar */
+    .navbar {
+        background: linear-gradient(135deg, #0b1a2d, #1a365d);
+        color: white;
+        text-align: center;
+        padding: 30px 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+
+    .navbar h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        color: #fff;
+    }
+
+    .nav-buttons-container {
+        margin: 20px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+
+    .nav-buttons-container button,
+    .button-container button,
+    button {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .nav-buttons-container button:hover,
+    .button-container button:hover,
+    button:hover {
+        background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    #compare {
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.02);
+        max-width: 95%;
+        margin: 0 auto 40px auto;
+        text-align: center;
+        animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+        color: #1e293b;
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: 600;
+        margin-right: 10px;
+        color: #334155;
+    }
+
+    select {
+        padding: 12px 16px;
+        font-size: 15px;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        background: #f8fafc;
+        color: #334155;
+        outline: none;
+        transition: all 0.3s ease;
+        margin: 0 10px 15px 0;
+    }
+
+    select:focus {
+        border-color: #3b82f6;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    /* Table styles */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+    }
+
+    th, td {
+        padding: 15px 20px;
+        text-align: center;
+        border-bottom: 1px solid #e2e8f0;
+        border-right: 1px solid #e2e8f0;
+    }
+
+    th:last-child, td:last-child {
+        border-right: none;
+    }
+
+    th {
+        background: #f8fafc;
+        color: #1e293b;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+    }
+
+    tr:nth-child(even) { background-color: #fbfcfd; }
+    tr:hover { background-color: #f1f5f9; }
+
+    /* Summary section */
+    #summary {
+        background: #ffffff;
+        padding: 25px;
+        margin: 20px auto;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.02);
+        text-align: left;
+        display: inline-block;
+        min-width: 300px;
+    }
+
+    #summary p {
+        margin: 10px 0;
+        font-weight: 500;
+        font-size: 16px;
+        color: #475569;
+    }
+
+    #summary p strong {
+        color: #1e293b;
+    }
+
+    h3 {
+        color: #1e293b;
+        font-size: 20px;
+        font-weight: 700;
+        margin-top: 30px;
+    }
+
+    /* Footer */
+    footer {
+        background: #0f172a;
+        color: #94a3b8;
+        text-align: center;
+        padding: 20px;
+        font-size: 14px;
+        margin-top: auto;
+    }
+
+    @media (max-width: 768px) {
+        select, button { width: 100%; margin: 5px 0; }
+        table { font-size: 14px; }
+        th, td { padding: 10px; }
+    }
+   </style>
+
+
+<script>
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyCeQ5M9dqhud_0WSD7P_Lry_jRTMY7ACws",
+        authDomain: "webpage-f7c87.firebaseapp.com",
+        databaseURL: "https://webpage-f7c87-default-rtdb.firebaseio.com",
+        projectId: "webpage-f7c87",
+        storageBucket: "webpage-f7c87.firebasestorage.app",
+        messagingSenderId: "270449608332",
+        appId: "1:270449608332:web:9da8a5339080801025dda9",
+        measurementId: "G-7N6TQNJN5H"
+    };
+
+    // Initialize Firebase
+    const firebaseApp = firebase.initializeApp(firebaseConfig);
+    const database = firebaseApp.database();
+
+    // Teacher data (map of teachers for each class, section, and subject)
+    const teachers = {
+         6: { 
+       A: { TAMIL: "M.K.GOMATHI",   ENGLISH: "K.KAVITHA",           MATHS: "N.KALPANA",   SCIENCE: "A.VASANDIRA",       "SOCIAL SCIENCE": "K.NALINI" },
+       B: { TAMIL: "BHUVANA",       ENGLISH: "N.A.THAVAMANI DEVI ", MATHS: "R.NALLASAMY", SCIENCE: "K.NALINI",          "SOCIAL SCIENCE": "K.NALINI" },
+       C: { TAMIL: "R.SANGEETHA",   ENGLISH: "B.SATHIYASEELAN",     MATHS: "R.NALLASAMY", SCIENCE: "T.AMARAVATHI",      "SOCIAL SCIENCE": "K.M.CHINNASWAMY" },
+       D: { TAMIL: "M.K.GOMATHI",   ENGLISH: "K.KAVITHA",            MATHS: "R.SUDHA",     SCIENCE: "K.M.CHINNASWAMY",   "SOCIAL SCIENCE": "K.NALINI" } },
+   
+       7: { 
+       A: { TAMIL: "M.K.GOMATHI",   ENGLISH: "D.SASIKALA",            MATHS: "S.PONNUSWAMY",              SCIENCE: "S.K.MURUGAMBAL", "SOCIAL SCIENCE": "T.ANGAIYARKANNI" },
+       B: { TAMIL: "KARTHI",        ENGLISH: "R.NIRMALA",             MATHS: "N.KALPANA",                 SCIENCE: "S.K.MURUGAMBAL", "SOCIAL SCIENCE": "T.ANGAIYARKANNI" },
+       C: { TAMIL: "PRITHIVI",      ENGLISH: "S.YASOTHAI",            MATHS: "R.MOHANAMBAL",              SCIENCE: "K.M.CHINNASWAMY","SOCIAL SCIENCE": "PRITHIV" },
+       D: { TAMIL: "GOVINDARAJAN.N",ENGLISH: "R.NIRMALA",             MATHS: "N.KALPANA",                 SCIENCE: "C.VELMURUGAN",   "SOCIAL SCIENCE": "T.ANGAIYARKANNI" }},  
+       
+       8: {
+         A: { TAMIL: "M.ILAMATHI",              ENGLISH: "R.SANDEEP", MATHS: "D.SASIKALA",       SCIENCE: "A.VASANDIRA", "SOCIAL SCIENCE": "R.SHANMUGA VADIVU" },
+       B: { TAMIL: "M.ILAMATHI",                  ENGLISH: "R.SANDEEP", MATHS: "R.SUDHA",             SCIENCE: "K.M.CHINNASWAMY", "SOCIAL SCIENCE": "KARTHI" },
+       C: { TAMIL: "T.C.SILAMBU SELVI",  ENGLISH: "K.JAYASEELAN", MATHS: "R.MOHANAMBAL",       SCIENCE: "C.VELMURUGAN", "SOCIAL SCIENCE": "KARTHI" },
+       D: { TAMIL: "T.C.SILAMBU SELVI",      ENGLISH: "B.SATHIYASEELAN",  MATHS: "N.A.THAVAMANI DEVI", SCIENCE: "T.AMARAVATHI", "SOCIAL SCIENCE": "KARTHI" } },
+  
+       9: {
+         A: { TAMIL: "M.K.GOMATHI",   ENGLISH: "R.NIRMALA",            MATHS: "R.MOHANAMBAL",       SCIENCE: "A.VASANDIRA",     "SOCIAL SCIENCE": "N.DHANALAXMI" },
+       B: { TAMIL: "M.ILAMATHI",      ENGLISH: "K.KAVITHA",            MATHS: "N.A.THAVAMANI DEVI", SCIENCE: "B.SATHIYASEELAN", "SOCIAL SCIENCE": "T.ANGAIYARKANNI" },
+       C: { TAMIL: "R.SANGEETHA",     ENGLISH: "S.YASOTHAI",           MATHS: "S.PONNUSWAMY",       SCIENCE: "S.K.MURUGAMBAL",  "SOCIAL SCIENCE": "T.ANGAIYARKANNI" },
+       D: { TAMIL: "GOVINDARAJAN.N",  ENGLISH: "K.JAYASEELAN",         MATHS: "R.NALLASAMY",        SCIENCE: "A.VASANDIRA",     "SOCIAL SCIENCE": "R.SHANMUGA VADIVU" },
+       },
+
+       10: {
+        A: {TAMIL: "M.ILAMATHI",    ENGLISH: "S.YASOTHAI",            MATHS: "D.SASIKALA",            SCIENCE: "S.K.MURUGAMBAL",  "SOCIAL SCIENCE": "N.DHANALAXMI" },
+        B: {TAMIL: "M.K.GOMATHI",   ENGLISH: "K.JAYASEELAN",          MATHS: "R.NALLASAMY",           SCIENCE: "T.AMARAVATHI",    "SOCIAL SCIENCE": "N.DHANALAXMI" },
+        C: {TAMIL: "GOVINDARAJAN.N",ENGLISH: "S.YASOTHAI",            MATHS: "N.KALPANA",             SCIENCE: "C.VELMURUGAN",    "SOCIAL SCIENCE": "N.DHANALAXMI" },
+        D: {TAMIL: "GOVINDARAJAN.N",ENGLISH: "K.JAYASEELAN",          MATHS: "S.PONNUSWAMY",          SCIENCE: "K.M.CHINNASWAMY", "SOCIAL SCIENCE": "PRITHIVI" },
+        E: {TAMIL: "R.SANGEETHA",   ENGLISH: "K.KAVITHA",             MATHS: "N.A.THAVAMANI DEVI",    SCIENCE: "K.NALINI",        "SOCIAL SCIENCE": "PRITHIVI" } },
+
+        11: {
+          A: {  TAMIL: "T.C.SILAMBU SELVI", ENGLISH: "P.KALAIVANI", MATHS: "R.SUDHA", PHYSICS: "C.VELMURUGAN", CHEMISTRY: "B.SATHIYASEELAN", BIOLOGY: "K.SUDHA" },
+       A1: {  TAMIL: "T.C.SILAMBU SELVI", ENGLISH: "P.KALAIVANI ", MATHS:  "R.SUDHA", PHYSICS:  "C.VELMURUGAN", CHEMISTRY: "B.SATHIYASEELAN", "COMPUTER_SCIENCE": "T.PRIYA" },
+       B: {  TAMIL: "V.J.BHARATHI", ENGLISH: "R.SANDEEP", MATHS:  "K.S.SENTHILKUMAR", PHYSICS:  "M.SANGEETHA", CHEMISTRY: "R.RAJENDRAN", COMPUTER_SCIENCE: "T.PRIYA" },
+       C: {  TAMIL: "V.J.BHARATHI", ENGLISH: "R.SANDEEP ", MATHS:  "K.S.SENTHILKUMAR", PHYSICS:  "M.SANGEETHA", CHEMISTRY: "R.RAJENDRAN", BIOLOGY: "K.SUDHA" },
+     
+       D: {  TAMIL: "V.J.BHARATHI", ENGLISH: "P.KALAIVANI ", ECONOMICS: "T.PRABAKARAN", ACCOUNTS: "S.R.INDRA", COMMERCE: "YOGAMBAL", HISTORY: "R.SHANMUGA VADIVU" },
+       E: {  TAMIL: "V.J.BHARATHII",ENGLISH: "P.KALAIVANI", ECONOMICS: "T.PRABAKARAN", ACCOUNTS: "S.R.INDRA", COMMERCE: "YOGAMBAL",COMPUTER_APPLICATION: "N.V.SENTHILKUMAR" } ,
+
+       F: {  TAMIL: "T.C.SILAMBU SELVI", ENGLISH: "R.SANDEEP", AGRI: "M.MANSOOR ALI", BIOLOGY: "K.SUDHA", EMPS: "YOGAMBAL", AGRI_PRACTICAL: "M.MANSOOR ALI" } },
+
+       12: { 
+        A: {  TAMIL: "V.J.BHARATHI", ENGLISH: "P.KALAIVANI", MATHS: "K.S.SENTHILKUMAR", PHYSICS: "M.SANGEETHA", CHEMISTRY: "R.RAJENDRAN", BIOLOGY: "K.SUDHA" },
+       A1: {  TAMIL: "V.J.BHARATHI", ENGLISH: "P.KALAIVANI", MATHS: "K.S.SENTHILKUMAR", PHYSICS: "M.SANGEETHA", CHEMISTRY: "R.RAJENDRAN", COMPUTER_SCIENCE: "N.V.SENTHILKUMAR" },
+       B: {  TAMIL: "V.J.BHARATHI", ENGLISH: "P.KALAIVANI", MATHS: "K.S.SENTHILKUMAR", PHYSICS: "M.SANGEETHA", CHEMISTRY: "R.RAJENDRAN", COMPUTER_SCIENCE: "N.V.SENTHILKUMAR" },
+       C: {  TAMIL: "V.J.BHARATHI", ENGLISH: "P.KALAIVANI", MATHS: "K.S.SENTHILKUMAR", PHYSICS: "M.SANGEETHA", CHEMISTRY: "R.RAJENDRAN", BIOLOGY: "K.SUDHA" },
+     
+       D: {  TAMIL: "V.J.BHARATHI", ENGLISH: "P.KALAIVANI", ECONOMICS: "T.PRABAKARAN", ACCOUNTS: "S.R.INDRA", COMMERCE: "YOGAMBAL", HISTORY: "R.SHANMUGA VADIVU" },
+       E: {  TAMIL: "V.J.BHARATHI", ENGLISH: "P.KALAIVANI", ECONOMICS: "T.PRABAKARAN", ACCOUNTS: "S.R.INDRA", COMMERCE: "YOGAMBAL",COMPUTER_APPLICATION: "N.V.SENTHILKUMAR" } ,
+
+       F: {  TAMIL: "V.J.BHARATHI", ENGLISH: "P.KALAIVANI", AGRI: "M.MANSOOR ALI", BIOLOGY: "K.SUDHA", EMPS: "T.PRABAKARAN", AGRI_PRACTICAL: "M.MANSOOR ALI" } }
+       
+      };	
+	
+
+    // Function to get the subjects based on class and section
+    function getSubjects(selectedClass, selectedSection) {
+        let subjects;
+    if (selectedClass <= 10) {
+      subjects = ["TAMIL", "ENGLISH", "MATHS", "SCIENCE", "SOCIAL SCIENCE"];
+    } else if (selectedClass >= 11) {
+        if (selectedSection === 'A') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS", "PHYSICS", "CHEMISTRY", "BIOLOGY"];
+        }  if (selectedSection === 'A1') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS","PHYSICS", "CHEMISTRY", "COMPUTER_SCIENCE" ];
+        } if (selectedSection === 'B') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS", "PHYSICS", "CHEMISTRY", "COMPUTER_SCIENCE"];
+        } if (selectedSection === 'C') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS", "PHYSICS", "CHEMISTRY", "BIOLOGY"];
+        } if (selectedSection === 'D') {
+            subjects = ["TAMIL", "ENGLISH",  "HISTORY","ECONOMICS", "COMMERCE", "ACCOUNTS"];
+        } if (selectedSection === 'E') {
+            subjects = ["TAMIL", "ENGLISH", "ECONOMICS", "COMMERCE", "ACCOUNTS", "COMPUTER_APPLICATION"];
+        } if (selectedSection === 'F') {
+            subjects = ["TAMIL", "ENGLISH", "BIOLOGY","AGRI", "AGRI_PRACTICAL",  "EMPS"];
+        }
+     }
+    
+
+        return subjects;
+    }
+</script>
+
+<script>
+  function fetchTeacherReport() {
+    const examType = document.getElementById("exam-type").value;
+    const selectedClass = document.getElementById("class-select").value;
+
+    if (!examType) {
+        alert("Please select an exam type.");
+        return;
+    }
+
+    const teacherReportContainer = document.getElementById("teacher-report-container");
+    teacherReportContainer.innerHTML = "<p>Loading...</p>";
+
+    let consolidatedData = {};
+
+    // Define subject order preference
+    const generalSubjectOrder = [
+        "TAMIL", "ENGLISH", "MATHS", "SCIENCE", "SOCIAL SCIENCE",
+        "PHYSICS", "CHEMISTRY", "BIOLOGY", "COMPUTER_SCIENCE",
+        "ECONOMICS",  "ACCOUNTS","COMMERCE", "HISTORY", 
+        "COMPUTER_APPLICATION", "AGRI", "EMPS", "AGRI_PRACTICAL"
+    ];
+
+    Promise.all(
+        Object.keys(teachers).map(classKey => {
+            if (selectedClass && classKey !== selectedClass) return Promise.resolve();
+
+            return Promise.all(
+                Object.keys(teachers[classKey]).map(sectionKey => {
+                    const teacherData = teachers[classKey][sectionKey];
+                    const subjects = getSubjects(classKey, sectionKey);
+
+                    return Promise.all(
+                        subjects.map(subject => {
+                            const teacherName = teacherData[subject];
+
+                            if (!teacherName) return Promise.resolve(); // Skip if no teacher assigned
+
+                            return database.ref(`students/${classKey}/${sectionKey}/${examType}`).once("value")
+                                .then(snapshot => {
+                                    const marksData = snapshot.val();
+                                    if (!marksData) return null;
+
+                                    let totalStudents = marksData.length || 0;
+                                    let presentStudents = 0;
+                                    let absentStudents = 0;
+                                    let passes = 0;
+                                    let fails = 0;
+                                    let totalMarks = 0;
+
+                                    marksData.forEach(student => {
+                                        const subjectMarks = student.marks[subjects.indexOf(subject)] || 0;
+                                        const isAbsent = student.absent[subjects.indexOf(subject)] || false;
+
+                                        if (isAbsent) {
+                                            absentStudents++;
+                                        } else {
+                                            presentStudents++;
+                                            if (subjectMarks < 35) {
+                                                fails++;
+                                            } else {
+                                                passes++;
+                                            }
+                                            totalMarks += subjectMarks;
+                                        }
+                                    });
+
+                                    let averageMarks = totalStudents > 0 ? (totalMarks / totalStudents).toFixed(2) : "0.00";
+
+                                    if (!consolidatedData[subject]) {
+                                        consolidatedData[subject] = {};
+                                    }
+
+                                    if (!consolidatedData[subject][teacherName]) {
+                                        consolidatedData[subject][teacherName] = {};
+                                    }
+
+                                    if (!consolidatedData[subject][teacherName][classKey]) {
+                                        consolidatedData[subject][teacherName][classKey] = {
+                                            sections: [],
+                                            totalStudents: 0,
+                                            totalPresent: 0,
+                                            totalAbsent: 0,
+                                            totalPass: 0,
+                                            totalFail: 0,
+                                            totalMarks: 0
+                                        };
+                                    }
+
+                                    consolidatedData[subject][teacherName][classKey].sections.push(sectionKey);
+                                    consolidatedData[subject][teacherName][classKey].totalStudents += totalStudents;
+                                    consolidatedData[subject][teacherName][classKey].totalPresent += presentStudents;
+                                    consolidatedData[subject][teacherName][classKey].totalAbsent += absentStudents;
+                                    consolidatedData[subject][teacherName][classKey].totalPass += passes;
+                                    consolidatedData[subject][teacherName][classKey].totalFail += fails;
+                                    consolidatedData[subject][teacherName][classKey].totalMarks += parseFloat(averageMarks) * totalStudents;
+                                });
+                        })
+                    );
+                })
+            );
+        })
+    )
+    .then(() => {
+        let consolidateTableHTML = `
+            <h3>Consolidated Report</h3>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                      
+                        <th>Teacher Name</th>
+                          <th>Subject</th>
+                        <th>Standard</th>
+                        <th>Sections</th>
+                        <th>Total Students</th>
+                        <th>Total Present</th>
+                        <th>Total Absent</th>
+                        <th>Total Passes</th>
+                        <th>Total Fails</th>
+                        <th>Overall Pass Percentage</th>
+                        <th>Average Marks</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        let serialNo = 1;
+
+        // Sort by subject order
+        generalSubjectOrder.forEach(subject => {
+            if (consolidatedData[subject]) {
+                Object.keys(consolidatedData[subject]).forEach(teacherName => {
+                    Object.keys(consolidatedData[subject][teacherName]).forEach(classKey => {
+                        const subjectSummary = consolidatedData[subject][teacherName][classKey];
+                        const overallPassPercentage = subjectSummary.totalPresent > 0 ? ((subjectSummary.totalPass / subjectSummary.totalPresent) * 100).toFixed(2) : "0.00";
+                        const averageMarks = subjectSummary.totalStudents > 0 ? (subjectSummary.totalMarks / subjectSummary.totalStudents).toFixed(2) : "0.00";
+
+                        consolidateTableHTML += `
+                            <tr>
+                                <td>${serialNo++}</td>
+                             
+                                <td>${teacherName}</td>
+                                   <td>${subject}</td>
+                                <td>${classKey}</td>
+                                <td>${[...new Set(subjectSummary.sections)].join(", ")}</td>
+                                <td>${subjectSummary.totalStudents}</td>
+                                <td>${subjectSummary.totalPresent}</td>
+                                <td>${subjectSummary.totalAbsent}</td>
+                                <td>${subjectSummary.totalPass}</td>
+                                <td>${subjectSummary.totalFail}</td>
+                                <td>${overallPassPercentage}%</td>
+                                <td>${averageMarks}</td>
+                            </tr>
+                        `;
+                    });
+                });
+            }
+        });
+
+        consolidateTableHTML += "</tbody></table>";
+
+        teacherReportContainer.innerHTML = consolidateTableHTML;
+    })
+    .catch(error => {
+        console.error(error);
+        alert("Error fetching data. Please try again.");
+    });
+}
+
+</script>
+  
+</head>
+<body>
+<div class="navbar">
+    <h1>Teacher's Report</h1>
+</div>
+
+<div class="nav-buttons-container">
+    <button onclick="goToReports()">← Back to All Reports</button>
+    <button onclick="goToHome()">🏠 Home</button>
+</div>
+
+<script>
+    function goToReports() {
+        window.location.href = "all report.html";
+    }
+    
+    function goToHome() {
+        window.location.href = "index.html";
+    }
+    </script>
+    
+
+<script>
+
+
+function toggleMenu() {
+    const menuLinks = document.querySelector('.menu-links');
+    menuLinks.classList.toggle('show');
+}
+
+</script>
+
+
+</script>
+
+<div id="compare" style="visibility: visible;">
+  
+<h1>Teacher's Report Analysis</h1>
+
+<label for="exam-type">Select Exam Type:</label>
+<select id="exam-type">
+    <option value="">Select</option>
+    <option value="1st-Midterm">1st-Midterm</option>
+    <option value="QUATERLY">QUATERLY</option>
+    <option value="2nd Midterm">2nd Midterm</option>
+    <option value="HALFYEARLY">HALFYEARLY</option>
+    <option value="ANNUAL EXAM">ANNUAL EXAM</option>
+</select>
+<label for="class-select">Select Class:</label>
+<select id="class-select">
+    <option value="">Select</option>
+    <option value="6">6th Standard</option>
+    <option value="7">7th Standard</option>
+    <option value="8">8th Standard</option>
+    <option value="9">9th Standard</option>
+    <option value="10">10th Standard</option>
+    <option value="11">11th Standard</option>
+    <option value="12">12th Standard</option>
+</select>
+<div class="button-container">
+    <button onclick="fetchTeacherReport()">View Teacher's Report</button>
+    <button onclick="printReport()">Print Now</button>
+</div>
+
+
+
+
+<div id="teacher-report-container"></div>
+<div id="teacher-report-container"></div>
+
+
+<script>
+function printReport() {
+    const originalContents = document.body.innerHTML; // Save original content
+    const printContents = document.getElementById("teacher-report-container").innerHTML; // Get only the report
+
+    document.body.innerHTML = `
+        <style>
+            @page {
+                size: A4 landscape;
+                margin: 10mm;
+            }
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                margin: 0;
+                padding: 0;
+                background-color: white; /* Ensure no background color behind the table */
+                font-family: Arial, sans-serif;
+            }
+            .print-container {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                padding: 0;
+            }
+            .print-content {
+                width: 100%;
+                max-width: 100%;
+                transform: scale(1); /* Default 100% scale */
+                padding: 0;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed; /* Ensure table fills the page */
+            }
+            th, td {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: center;
+                word-wrap: break-word;
+                font-size: 12pt; /* Default text size */
+            }
+            /* Scale table down dynamically if needed */
+            @media print {
+                .print-content {
+                    transform: scale(0.9); /* Adjust size to fit on page */
+                }
+                table {
+                    width: 100%;
+                    table-layout: fixed; /* Make sure table expands fully */
+                }
+                th, td {
+                    font-size: 10pt; /* Slightly smaller font size for printing */
+                    padding: 6px;
+                }
+            }
+        </style>
+        <div class="print-container">
+            <div class="print-content">
+                ${printContents}
+            </div>
+        </div>
+    `;
+
+    window.print(); // Open print settings
+
+    document.body.innerHTML = originalContents; // Restore original content after printing
+}
+
+
+
+</script>
+</div>
+
+  <footer>&copy; 2025 YOUNG TECHNOLOGY | All rights reserved</footer>
+
+</body>
+</html>

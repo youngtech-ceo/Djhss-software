@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Report Analysis</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="nav.css">
+   <style>
+    body {
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        background-color: #f4f7fb;
+        margin: 0;
+        padding: 0;
+        color: #334155;
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Navbar */
+    .navbar {
+        background: linear-gradient(135deg, #0b1a2d, #1a365d);
+        color: white;
+        text-align: center;
+        padding: 30px 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+
+    .navbar h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        color: #fff;
+    }
+
+    .nav-buttons-container {
+        margin: 20px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+
+    .nav-buttons-container button,
+    button {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .nav-buttons-container button:hover,
+    button:hover {
+        background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+    }
+
+    #compare {
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.02);
+        max-width: 95%;
+        margin: 0 auto 40px auto;
+        text-align: center;
+        animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+        color: #1e293b;
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: 600;
+        margin-right: 10px;
+        color: #334155;
+    }
+
+    select {
+        padding: 12px 16px;
+        font-size: 15px;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        background: #f8fafc;
+        color: #334155;
+        outline: none;
+        transition: all 0.3s ease;
+        margin: 0 10px 15px 0;
+    }
+
+    select:focus {
+        border-color: #3b82f6;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    /* Table styles */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+    }
+
+    th, td {
+        padding: 15px 20px;
+        text-align: center;
+        border-bottom: 1px solid #e2e8f0;
+        border-right: 1px solid #e2e8f0;
+    }
+
+    th:last-child, td:last-child {
+        border-right: none;
+    }
+
+    th {
+        background: #f8fafc;
+        color: #1e293b;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+    }
+
+    tr:nth-child(even) { background-color: #fbfcfd; }
+    tr:hover { background-color: #f1f5f9; }
+
+    /* Summary section */
+    #summary {
+        background: #ffffff;
+        padding: 25px;
+        margin: 20px auto;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.02);
+        text-align: left;
+        display: inline-block;
+        min-width: 300px;
+    }
+
+    #summary p {
+        margin: 10px 0;
+        font-weight: 500;
+        font-size: 16px;
+        color: #475569;
+    }
+
+    #summary p strong {
+        color: #1e293b;
+    }
+
+    h3 {
+        color: #1e293b;
+        font-size: 20px;
+        font-weight: 700;
+        margin-top: 30px;
+    }
+
+    /* Footer */
+    footer {
+        background: #0f172a;
+        color: #94a3b8;
+        text-align: center;
+        padding: 20px;
+        font-size: 14px;
+        margin-top: auto;
+    }
+
+    @media (max-width: 768px) {
+        select, button { width: 100%; margin: 5px 0; }
+        table { font-size: 14px; }
+        th, td { padding: 10px; }
+    }
+   </style>
+
+
+
+
+   <script> // firebase 
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCeQ5M9dqhud_0WSD7P_Lry_jRTMY7ACws",
+            authDomain: "webpage-f7c87.firebaseapp.com",
+            databaseURL: "https://webpage-f7c87-default-rtdb.firebaseio.com",
+            projectId: "webpage-f7c87",
+            storageBucket: "webpage-f7c87.firebasestorage.app",
+            messagingSenderId: "270449608332",
+            appId: "1:270449608332:web:9da8a5339080801025dda9",
+            measurementId: "G-7N6TQNJN5H"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+
+
+
+
+
+<script>
+    function fetchClassReport() {
+        const selectedClass = document.getElementById("class-select").value;
+        const examType = document.getElementById("exam-type").value;
+        const sections = ["A", "A1", "B", "C", "D", "E", "F"]; // Modify if needed
+    
+        if (!selectedClass || !examType) {
+            alert("Please select a class and exam type.");
+            return;
+        }
+    
+        const reportTableBody = document.getElementById("report-table-body");
+        reportTableBody.innerHTML = "<tr><td colspan='7'>Loading...</td></tr>";
+    
+        let totalStudents = 0;
+        let presentStudents = 0;
+        let absentStudents = 0;
+        let totalPasses = 0;
+        let totalFails = 0;
+    
+        const percentageRanges = {
+            between0And35: 0,
+            between36And60: 0,
+            between61And80: 0,
+            between81And90: 0,
+            between91And99: 0,
+            hundred: 0
+        };
+    
+        const sectionReports = [];
+    
+        Promise.all(
+            sections.map(section =>
+                database
+                    .ref(`students/${selectedClass}/${section}/${examType}`)
+                    .once("value")
+                    .then(snapshot => {
+                        const marksData = snapshot.val();
+                        if (!marksData) {
+                            console.log(`No data found for section: ${section}`);
+                            return null;
+                        }
+    
+                        let sectionTotal = marksData.length || 0;
+                        let sectionAbsent = 0;
+                        let sectionPresent = 0;
+                        let sectionPasses = 0;
+                        let sectionFails = 0;
+    
+                        let sectionPercentageRanges = {
+                            between0And35: 0,
+                            between36And60: 0,
+                            between61And80: 0,
+                            between81And90: 0,
+                            between91And99: 0,
+                            hundred: 0
+                        };
+    
+                        marksData.forEach(student => {
+                            if (!student.marks || student.marks.length === 0) return;
+    
+                            const isAbsent = student.absent?.some(absent => absent === true);
+                            if (isAbsent) {
+                                sectionAbsent++;
+                                return;
+                            }
+    
+                            sectionPresent++;
+    
+                            const totalMarks = student.marks.reduce((sum, mark) => sum + (typeof mark === "number" ? mark : 0), 0);
+                            const percentage = (totalMarks / (student.marks.length * 100)) * 100;
+                            const hasFailed = student.marks.some(mark => mark < 35);
+    
+                            if (hasFailed) {
+                                sectionFails++;
+                            } else {
+                                sectionPasses++;
+                            }
+    
+                            // Categorize based on percentage (for all present students)
+                            if (percentage <= 35) {
+                                sectionPercentageRanges.between0And35++;
+                            } else if (percentage <= 60) {
+                                sectionPercentageRanges.between36And60++;
+                            } else if (percentage <= 80) {
+                                sectionPercentageRanges.between61And80++;
+                            } else if (percentage <= 90) {
+                                sectionPercentageRanges.between81And90++;
+                            } else if (percentage <= 99) {
+                                sectionPercentageRanges.between91And99++;
+                            } else if (percentage === 100) {
+                                sectionPercentageRanges.hundred++;
+                            }
+                        });
+    
+                        totalStudents += sectionTotal;
+                        absentStudents += sectionAbsent;
+                        presentStudents += sectionPresent;
+                        totalPasses += sectionPasses;
+                        totalFails += sectionFails;
+    
+                        Object.keys(sectionPercentageRanges).forEach(range => {
+                            percentageRanges[range] += sectionPercentageRanges[range];
+                        });
+    
+                        sectionReports.push({
+                            section,
+                            total: sectionTotal,
+                            present: sectionPresent,
+                            absent: sectionAbsent,
+                            passes: sectionPasses,
+                            fails: sectionFails,
+                            passPercentage: sectionPresent > 0 ? ((sectionPasses / sectionPresent) * 100).toFixed(2) : "0.00",
+                            percentageRanges: sectionPercentageRanges
+                        });
+                    })
+            )
+        ).then(() => {
+            reportTableBody.innerHTML = "";
+            sectionReports.forEach(sectionReport => {
+                if (sectionReport) {
+                    reportTableBody.innerHTML += `
+                        <tr>
+                            <td>${sectionReport.section}</td>
+                            <td>${sectionReport.total}</td>
+                            <td>${sectionReport.present}</td>
+                            <td>${sectionReport.absent}</td>
+                            <td>${sectionReport.passes}</td>
+                            <td>${sectionReport.fails}</td>
+                            <td>${sectionReport.passPercentage}%</td>
+                        </tr>
+                    `;
+                }
+            });
+    
+            const overallPassPercentage = presentStudents > 0 ? ((totalPasses / presentStudents) * 100).toFixed(2) : "0.00";
+    
+            document.getElementById("summary").innerHTML = `
+                <p><strong>Class: ${selectedClass}, Exam Type: ${examType}</strong></p>
+                <p>Total Students: ${totalStudents}</p>
+                <p>Present Students: ${presentStudents}</p>
+                <p>Absent Students: ${absentStudents}</p>
+                <p>Total Passes: ${totalPasses}</p>
+                <p>Total Fails: ${totalFails}</p>
+                <p>Overall Pass Percentage: ${overallPassPercentage}%</p>
+            `;
+    
+            document.getElementById("percentage-ranges").innerHTML = `
+                <h3>Overall Percentage Analyzer</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Section</th>
+                            <th>Present Students</th>
+                            <th>0% - 35%</th>
+                            <th>36% - 60%</th>
+                            <th>61% - 80%</th>
+                            <th>81% - 90%</th>
+                            <th>91% - 99%</th>
+                            <th>100%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sectionReports.map(sectionReport => `
+                            <tr>
+                                <td>${sectionReport.section}</td>
+                                <td>${sectionReport.present}</td>
+                                <td>${sectionReport.percentageRanges.between0And35}</td>
+                                <td>${sectionReport.percentageRanges.between36And60}</td>
+                                <td>${sectionReport.percentageRanges.between61And80}</td>
+                                <td>${sectionReport.percentageRanges.between81And90}</td>
+                                <td>${sectionReport.percentageRanges.between91And99}</td>
+                                <td>${sectionReport.percentageRanges.hundred}</td>
+                            </tr>
+                        `).join('')}
+                        <tr>
+                            <td><strong>Total</strong></td>
+                            <td><strong>${presentStudents}</strong></td>
+                            <td><strong>${percentageRanges.between0And35}</strong></td>
+                            <td><strong>${percentageRanges.between36And60}</strong></td>
+                            <td><strong>${percentageRanges.between61And80}</strong></td>
+                            <td><strong>${percentageRanges.between81And90}</strong></td>
+                            <td><strong>${percentageRanges.between91And99}</strong></td>
+                            <td><strong>${percentageRanges.hundred}</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+        }).catch(error => {
+            console.error(error);
+            alert("Error fetching data. Please try again.");
+        });
+    }
+    </script>
+    
+
+
+
+
+
+
+
+   
+</head>
+<body>
+  <!-- Navbar -->
+
+<div class="navbar">
+    
+    <h1>Section Wise Report</h1>
+</div>
+<div class="nav-buttons-container">
+    <button onclick="goToReports()">← Back to All Reports</button>
+    <button onclick="goToHome()">🏠 Home</button>
+</div>
+
+<script>
+    function goToReports() {
+        window.location.href = "all report.html";
+    }
+    
+    function goToHome() {
+        window.location.href = "index.html";
+    }
+    </script>
+    
+
+<script>
+
+
+function toggleMenu() {
+    const menuLinks = document.querySelector('.menu-links');
+    menuLinks.classList.toggle('show');
+}
+
+</script>
+
+
+<div id="compare" style="visibility: visible;">
+    
+    
+    <h1>Class Report Analysis</h1>
+    <label for="class-select">Select Class:</label>
+    <select id="class-select">
+        <option value="">Select</option>
+        <option value="6">6th Standard</option>
+        <option value="7">7th Standard</option>
+        <option value="8">8th Standard</option>
+        <option value="9">9th Standard</option>
+        <option value="10">10th Standard</option>
+        <option value="11">11th Standard</option>
+        <option value="12">12th Standard</option>
+    </select>
+
+    <label for="exam-type">Select Exam Type:</label>
+    <select id="exam-type">
+        <option value="">Select</option>
+        <option value="1st-Midterm">1st-Midterm</option>
+        <option value="QUATERLY">QUATERLY</option>
+        <option value="2nd Midterm">2nd Midterm</option>
+        <option value="HALFYEARLY">HALFYEARLY</option>
+        <option value="REVISION-1">REVISION-1</option>
+        <option value="REVISION-2">REVISION-2</option>
+        <option value="REVISION-3">REVISION-3</option>
+        <option value="ANNUAL EXAM">ANNUAL EXAM</option>
+    </select>
+    <button onclick="fetchClassReport()">View Report</button>
+  
+
+        <button onclick="printReport()">Print Now</button>
+
+    
+    
+    
+    <script>// for printing 
+    function printReport() {
+        const originalContents = document.body.innerHTML; // Save original content
+        const printContents = document.getElementById("teacher-report-container").innerHTML; // Get only the report
+    
+        document.body.innerHTML = `
+            <style>
+                @page {
+                    size: A4 landscape;
+                    margin: 02mm;
+                }
+                body {
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                    margin: 0;
+                    padding: 0;
+                    background-color: white; /* Ensure no background color behind the table */
+                    font-family: Arial, sans-serif;
+                }
+                .print-container {
+                    width: 100%;
+                    display: flex;
+                    justify-content: center;
+                    padding: 0;
+                }
+                .print-content {
+                    width: 100%;
+                    max-width: 100%;
+                    transform: scale(1); /* Default 100% scale */
+                    padding: 0;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    table-layout: fixed; /* Ensure table fills the page */
+                }
+                th, td {
+                    border: 1px solid black;
+                    padding: 8px;
+                    text-align: center;
+                    word-wrap: break-word;
+                    font-size: 12pt; /* Default text size */
+                }
+                /* Scale table down dynamically if needed */
+                @media print {
+                    .print-content {
+                        transform: scale(0.9); /* Adjust size to fit on page */
+                    }
+                    table {
+                        width: 100%;
+                        table-layout: fixed; /* Make sure table expands fully */
+                    }
+                    th, td {
+                        font-size: 12pt; /* Slightly smaller font size for printing */
+                        padding: 6px;
+                    }
+                }
+            </style>
+            <div class="print-container">
+                <div class="print-content">
+                 
+                    ${printContents}
+                </div>
+            </div>
+        `;
+    
+        window.print(); // Open print settings
+    
+        document.body.innerHTML = originalContents; // Restore original content after printing
+    }
+    
+    
+    
+    </script>
+<div id="teacher-report-container">
+    <div id="summary"></div>
+    <table border="1">
+        <h3>Class Wise Report</h3>
+        <thead>
+            <tr>
+                <th>Section</th>
+                <th>Total Students</th>
+                <th>Present Students</th>
+                <th>Absent Students</th>
+                <th>Passes</th>
+                <th>Fails</th>
+                <th>Pass Percentage</th>
+            </tr>
+        </thead>
+        
+        <tbody id="report-table-body"></tbody>
+    </table>
+
+    <div id="percentage-ranges"></div></div></div>
+    
+  <footer>&copy; 2025 YOUNG TECHNOLOGY | All rights reserved</footer>
+
+</body>
+</html>
+

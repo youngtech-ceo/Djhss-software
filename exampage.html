@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Mark Entry</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Include jsPDF and AutoTable -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.11/jspdf.plugin.autotable.min.js"></script>
+
+
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.3.0/docx.min.js"></script>
+
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" sizes="16x16" href="favicon-16x16.png">
+    <link rel="icon" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" sizes="192x192" href="android-chrome-192x192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+
+<link rel="manifest" href="/site.webmanifest">
+
+
+ <!-- == MAIN STYLE == -->
+
+
+ <!-- <link rel="stylesheet" href="index.css"> -->
+ <link rel="stylesheet" href="exampage.css">
+
+
+   
+    <!-- ==FIREBASE CONFIGURATION == -->
+    <script>
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCeQ5M9dqhud_0WSD7P_Lry_jRTMY7ACws",
+    authDomain: "webpage-f7c87.firebaseapp.com",
+    databaseURL: "https://webpage-f7c87-default-rtdb.firebaseio.com",
+    projectId: "webpage-f7c87",
+    storageBucket: "webpage-f7c87.firebasestorage.app",
+    messagingSenderId: "270449608332",
+    appId: "1:270449608332:web:9da8a5339080801025dda9",
+    measurementId: "G-7N6TQNJN5H"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+    </script>
+
+  </head>
+
+
+
+ 
+   
+</head>
+<body>
+<!-- Navbar -->
+
+<div class="navbar">
+    <h1>Student  Management System</h1>
+    <h1>DJHSS-GOBI</h1>
+</div>
+<div class="menu-bar">
+
+    <button class="menu-toggle" onclick="toggleMenu()">☰ Menu</button>
+    <div class="menu-links">
+        <a href="index.html">Home</a>
+        <a href="all report.html">📊 Reports</a>
+        <a href="exampage.html">📝 School Mark Entry</a>
+    
+        <a href="helpdesk.html">💬 Help Desk</a>
+        <a href="index.html" style="color: #fff; background-color: #28a745; padding: 10px 20px; border-radius: 5px;">SIGN OUT</a>
+    </div>
+</div>
+
+
+
+<script>
+
+
+function toggleMenu() {
+    const menuLinks = document.querySelector('.menu-links');
+    menuLinks.classList.toggle('show');
+}
+
+</script>
+    <br><br>
+
+
+
+
+
+
+
+
+
+  
+    
+
+    
+  <div id="aa" >
+
+    <label for="exam-type">Select Exam Type:</label>
+    <select id="exam-type">
+      <option >Select</option>
+      <option value="1st-Midterm">1st-Midterm</option>
+      <option value="QUATERLY">QUATERLY</option>
+      <option value="2nd Midterm">2nd Midterm</option>
+      <option value="HALFYEARLY">HALFYEARLY</option>
+      <option value="REVISION-1">REVISION-1</option>
+      <option value="REVISION-2">REVISION-2</option>
+      <option value="REVISION-3">REVISION-3</option>
+      <option value="ANNUAL EXAM">ANNUAL EXAM</option>
+         <option value="TEST1">TEST 1</option>
+       <option value="TEST2">TEST 2</option>
+        <option value="TEST3">TEST 2</option>
+    </select>
+
+    <label>Class:</label>
+    <select id="class-select">
+      <option value="">Select Class</option>
+      <option value="6">6th Standard</option>
+      <option value="7">7th Standard</option>
+      <option value="8">8th Standard</option>
+      <option value="9">9th Standard</option>
+      <option value="10">10th Standard</option>
+      <option value="11">11th Standard</option>
+      <option value="12">12th Standard</option>
+    </select>
+    <label>Section:</label>
+    <select id="section-select" style="display: none;">
+      <option value="">Select Section</option>
+      <option value="A">A</option>
+      <option value="A1">A1</option>
+      <option value="B">B</option>
+      <option value="C">C</option>
+      <option value="D">D</option>
+      <option value="E">E</option>
+      <option value="F">F</option>
+    </select>
+   
+   
+
+
+  </div>
+
+  <div id="info-div">
+    <div><span class="info-label">Class:</span> <span id="display-class"></span></div>
+    <div><span class="info-label">Section:</span> <span id="display-section"></span></div>
+    <div><span class="info-label">Subject:</span> <span id="display-subject"></span></div>
+    <div><span class="info-label">Class Teacher:</span> <span id="display-teacher"></span></div>
+  </div>
+  
+ <div id="student-list-container"></div>
+  <br><br>
+  <button id="submit-button">Submit</button>
+
+
+
+
+
+  <br><br>
+  
+  
+  <div id="result"></div>
+  <div id="report-container"></div>
+    </div>
+    <script>
+        function adjustElementWidth() {
+          const elements = document.querySelectorAll(" #student-list-container, #result, #report-container");
+        
+          elements.forEach(element => {
+            if (window.innerWidth > 1024) {
+              element.style.width = '60%';
+            } else if (window.innerWidth <= 1024 && window.innerWidth > 768) {
+              element.style.width = '80%';
+            } else if (window.innerWidth <= 768 && window.innerWidth > 480) {
+              element.style.width = '90%';
+            } else {
+              element.style.width = '95%';
+            }
+          });
+        }
+        
+        // Adjust on load and resize
+        window.onload = adjustElementWidth;
+        window.onresize = adjustElementWidth;
+        </script>
+        
+  <!-- ==CONSTANT SELETION == -->
+  <script>
+ 
+
+    const classSelect = document.getElementById("class-select");
+    const sectionSelect = document.getElementById("section-select");
+    const subjectSelect = document.getElementById("subject-select");
+    
+    const displayClass = document.getElementById("display-class");
+    const displaySection = document.getElementById("display-section");
+    const displaySubject = document.getElementById("display-subject");
+    const displayTeacher = document.getElementById("display-teacher");
+    const infoDiv = document.getElementById("info-div");
+    const resultDiv = document.getElementById("result");
+    const reportContainer = document.getElementById("report-container");
+
+   
+
+
+    </script>
+
+
+
+<!-- Teachers name and students name Include -->
+  <script src="teachersname.js"></script>
+  <script src="studentsname.js"></script>
+
+
+<!-- == MAIN SCRIPT == -->
+
+  <script>
+    classSelect.addEventListener("change", (e) => {
+    const selectedClass = parseInt(e.target.value);
+    sectionSelect.style.display = "inline";
+
+    let subjects;
+    if (selectedClass <= 10) {
+      subjects = ["TAMIL", "ENGLISH", "MATHS", "SCIENCE", "SOCIAL SCIENCE"];
+    } else if (selectedClass >= 11) {
+        if (selectedSection === 'A') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS", "PHYSICS", "CHEMISTRY", "BIOLOGY"];
+        }  if (selectedSection === 'A1') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS","PHYSICS", "CHEMISTRY", "COMPUTER_SCIENCE" ];
+        } if (selectedSection === 'B') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS", "PHYSICS", "CHEMISTRY", "COMPUTER_SCIENCE"];
+        } if (selectedSection === 'C') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS", "PHYSICS", "CHEMISTRY", "BIOLOGY"];
+        } if (selectedSection === 'D') {
+            subjects = ["TAMIL", "ENGLISH",  "HISTORY","ECONOMICS", "COMMERCE", "ACCOUNTS"];
+        } if (selectedSection === 'E') {
+            subjects = ["TAMIL", "ENGLISH", "ECONOMICS", "COMMERCE", "ACCOUNTS", "COMPUTER_APPLICATION"];
+        } if (selectedSection === 'F') {
+            subjects = ["TAMIL", "ENGLISH", "BIOLOGY","AGRI", "AGRI_PRACTICLE",  "EMPS"];
+        }
+     }
+    subjectSelect.innerHTML = '<option value="">Select Subject</option>';
+    subjects.forEach(subject => {
+        const option = document.createElement("option");
+        option.value = subject;
+        option.textContent = subject;
+        subjectSelect.appendChild(option);
+    });
+
+    clearPreviousResults();
+});
+
+sectionSelect.addEventListener("change", (e) => {
+    const selectedClass = parseInt(classSelect.value);
+    const selectedSection = e.target.value;
+
+    const selectedStudents = students[selectedClass][selectedSection] || [];
+    document.getElementById("student-list-container").innerHTML = ""; // Clear previous data
+
+    const studentListTable = document.createElement("table");
+
+    let subjects;
+   
+    
+    if (selectedClass <= 10) {
+      subjects = ["TAMIL", "ENGLISH", "MATHS", "SCIENCE", "SOCIAL SCIENCE"];
+    } else if (selectedClass >= 11) {
+        if (selectedSection === 'A') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS", "PHYSICS", "CHEMISTRY", "BIOLOGY"];
+        }  if (selectedSection === 'A1') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS","PHYSICS", "CHEMISTRY", "COMPUTER_SCIENCE" ];
+        } if (selectedSection === 'B') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS", "PHYSICS", "CHEMISTRY", "COMPUTER_SCIENCE"];
+        } if (selectedSection === 'C') {
+            subjects = ["TAMIL", "ENGLISH", "MATHS", "PHYSICS", "CHEMISTRY", "BIOLOGY"];
+        } if (selectedSection === 'D') {
+            subjects = ["TAMIL", "ENGLISH",  "HISTORY","ECONOMICS", "COMMERCE", "ACCOUNTS"];
+        } if (selectedSection === 'E') {
+            subjects = ["TAMIL", "ENGLISH", "ECONOMICS", "COMMERCE", "ACCOUNTS", "COMPUTER_APPLICATION"];
+        } if (selectedSection === 'F') {
+            subjects = ["TAMIL", "ENGLISH", "BIOLOGY","AGRI", "AGRI_PRACTICLE",  "EMPS"];
+        }
+     }
+    // Create the table header
+    const tableHeaderRow = document.createElement("tr");
+    const tableHeaderCells = ["Student Name", ...subjects, "Total Marks"];
+    tableHeaderCells.forEach(headerText => {
+        const th = document.createElement("th");
+        th.textContent = headerText;
+        tableHeaderRow.appendChild(th);
+    });
+
+
+
+    studentListTable.appendChild(tableHeaderRow); // Append the header row to the table
+
+    // Populate student rows
+  // Populate student rows
+selectedStudents.forEach(student => {
+    const row = document.createElement("tr");
+
+    // Student name cell
+    const studentCell = document.createElement("td");
+    studentCell.textContent = student;
+    row.appendChild(studentCell);
+
+    // Input fields for subjects
+    subjects.forEach((subject, index) => {
+        const cell = document.createElement("td");
+        const input = document.createElement("input");
+        input.type = "number";
+        input.min = "0";
+        input.max = "100";
+        
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.className = "absent-checkbox"; // Add a class for easier selection later
+        checkbox.addEventListener('change', () => {
+            if (checkbox.checked) {
+                input.value = "00"; // Mark as absent
+                input.disabled = true; // Disable input if absent
+            } else {
+                input.disabled = false; // Enable input if not absent
+                input.value = ""; // Clear the input if the checkbox is unchecked
+            }
+        });
+
+        cell.appendChild(input);
+        cell.appendChild(checkbox);
+        row.appendChild(cell);
+    });
+
+    // Total marks cell
+    const totalCell = document.createElement("td");
+    totalCell.className = "total";
+    totalCell.textContent = "0";
+    row.appendChild(totalCell);
+
+    studentListTable.appendChild(row);
+});
+
+    document.getElementById("student-list-container").appendChild(studentListTable);
+    infoDiv.style.visibility = "hidden";
+
+
+
+
+ 
+    fetchStudentMarks(selectedClass, selectedSection);
+    const teacher = teacherNames[selectedClass][selectedSection];
+    displayTeacher.textContent = teacher ? `${teacher.CLASS_TEACHER}` : "Not Assigned";
+
+
+    function fetchStudentMarks(selectedClass, selectedSection) {
+    const examType = document.getElementById("exam-type").value;
+    const classRef = database.ref(`students/${selectedClass}/${selectedSection}/${examType}`);
+    
+    classRef.once('value')
+        .then(snapshot => {
+            const data = snapshot.val();
+            console.log(data); // Debug
+
+            if (data) {
+                const rows = document.querySelectorAll("#student-list-container tr:not(:first-child)");
+
+                rows.forEach(row => {
+                    const studentName = row.cells[0].textContent.trim();
+                    const studentData = data.find(student => student.name === studentName);
+
+                    if (studentData) {
+                        const inputs = row.querySelectorAll("input[type='number']");
+                        const checkboxes = row.querySelectorAll(".absent-checkbox");
+
+                        // Loop through each subject
+                        studentData.marks.forEach((mark, index) => {
+                            if (mark === "00") {
+                                inputs[index].value = ""; // Leave mark empty if absent
+                            } else {
+                                inputs[index].value = mark; // Set the mark
+                            }
+                        });
+
+                        studentData.absent.forEach((isAbsent, index) => {
+                            if (checkboxes[index]) {
+                                checkboxes[index].checked = !!isAbsent; // Set checkbox status
+                            }
+                        });
+
+                        // Set total
+                        const totalCell = row.querySelector(".total");
+                        if (totalCell) {
+                            totalCell.textContent = studentData.total;
+                        }
+                    }
+                });
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching data: ", error);
+            alert("Error fetching data: " + error.message);
+        });
+}
+});
+
+
+
+
+
+
+function fetchStudentAbsence(selectedClass, selectedSection) {
+    const examType = document.getElementById("exam-type").value; // Get selected exam type
+    const classRef = database.ref(`students/${selectedClass}/${selectedSection}/${examType}`); // Firebase reference path for fetching data
+    
+    classRef.once('value').then(snapshot => {
+        const data = snapshot.val(); // Get the data from Firebase
+        console.log(data); // Debugging: Log the fetched data
+
+        if (data) {
+            const rows = document.querySelectorAll("#student-list-container tr:not(:first-child)"); // All student rows (excluding the header)
+
+            rows.forEach(row => {
+                const studentName = row.cells[0].textContent.trim(); // Get student name from the table
+                const studentData = data.find(student => student.name === studentName); // Find student data by name
+
+                if (studentData) {
+                    const checkboxes = row.querySelectorAll(".absent-checkbox"); // Get all checkboxes for that row (subjects)
+
+                    // Loop through each subject and its corresponding checkbox
+                    studentData.absent.forEach((isAbsent, index) => {
+                        const checkbox = checkboxes[index]; // Get the checkbox for the current subject
+                        if (checkbox) {
+                            checkbox.checked = isAbsent; // Set the checkbox based on absence (true = checked, false = unchecked)
+                        }
+                    });
+                }
+            });
+        }
+    }).catch(error => {
+        console.error("Error fetching data: ", error);
+    });
+}
+
+
+
+
+
+</script>
+
+<!-- Popup message container -->
+<div id="popup-message" class="hidden"></div>
+
+
+
+<script>
+document.getElementById("submit-button").addEventListener("click", () => {
+    const examType = document.getElementById("exam-type").value;
+    const rows = document.querySelectorAll("#student-list-container table tr:not(:first-child)");
+    const selectedClass = parseInt(classSelect.value);
+    const selectedSection = sectionSelect.value;
+    const classRef = database.ref(`students/${selectedClass}/${selectedSection}/${examType}`);
+
+    const studentsData = [];
+
+    rows.forEach(row => {
+        const inputs = row.querySelectorAll("input[type='number']");
+        const checkboxes = row.querySelectorAll(".absent-checkbox");
+        const totalCell = row.querySelector(".total");
+        let total = 0;
+        const studentName = row.cells[0].textContent.trim();
+        const subjectMarks = [];
+        const absentState = [];
+
+        inputs.forEach((input, index) => {
+            let mark = parseInt(input.value) || 0;
+            const isAbsent = checkboxes[index].checked;
+
+            if (isAbsent) {
+                mark = 0;
+                subjectMarks.push("absent");
+                absentState.push(true);
+            } else {
+                subjectMarks.push(mark);
+                absentState.push(false);
+            }
+
+            total += mark;
+        });
+
+        studentsData.push({
+            name: studentName,
+            marks: subjectMarks,
+            absent: absentState,
+            total: total
+        });
+
+        totalCell.textContent = total;
+    });
+
+    classRef.set(studentsData)
+        .then(() => {
+            showPopupMessage("✅ Marks stored successfully!", true);
+        })
+        .catch((error) => {
+            console.error("Error saving data: ", error);
+            showPopupMessage("❌ Failed to save marks!", false);
+        });
+});
+
+function showPopupMessage(message, isSuccess) {
+    const popup = document.getElementById("popup-message");
+    popup.textContent = message;
+    popup.className = isSuccess ? "popup-success" : "popup-error";
+    popup.classList.add("show");
+    popup.classList.remove("hidden");
+
+    // Hide after 3 seconds
+    setTimeout(() => {
+        popup.classList.remove("show");
+        setTimeout(() => popup.classList.add("hidden"), 400);
+    }, 3000);
+}
+</script>
+
+  <footer>&copy; 2025 YOUNG TECHNOLOGY | All rights reserved</footer>
+  <style>
+    /* ==== FOOTER ==== */
+    footer {
+      background: #0f172a;
+      color: #94a3b8;
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      width: 100%;
+      margin-top: auto;
+    }
+  </style>
+
+</html> 
+

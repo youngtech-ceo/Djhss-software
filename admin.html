@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel | Student & Teacher Management</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-database.js"></script>
+
+  <style>
+    /* Admin Panel Styles */
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f4f7fb;
+      color: #334155;
+    }
+    
+    .admin-container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    .admin-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      border: 1px solid rgba(0,0,0,0.02);
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 15px;
+    }
+
+    .admin-header h2 {
+      margin: 0;
+      color: #1e293b;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .controls-group {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    select, input[type="text"] {
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      font-size: 15px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    select:focus, input[type="text"]:focus {
+      border-color: #3b82f6;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    button.btn-primary {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+    }
+    
+    button.btn-primary:hover {
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+    }
+
+    button.btn-danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button.btn-danger:hover {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      transform: translateY(-2px);
+    }
+
+    .list-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .list-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .list-item:hover {
+      background: #ffffff;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      border-color: #cbd5e1;
+    }
+
+    .list-item span {
+      font-weight: 500;
+      color: #334155;
+    }
+
+    .add-form {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #10b981;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+      font-weight: 600;
+      transform: translateX(150%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1000;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <div class="navbar">
+    <h1>Student Management System</h1>
+    <h1>DJHSS - ADMIN PANEL</h1>
+  </div>
+
+  <div class="menu-bar">
+    <button class="menu-toggle" onclick="toggleMenu()">☰ Menu</button>
+    <div class="menu-links">
+      <a href="index.html">🏠 Dashboard</a>
+      <a href="admin.html">⚙️ Admin Panel</a>
+    </div>
+  </div>
+
+  <div id="notification" class="notification">Action Successful!</div>
+
+  <div class="admin-container">
+    
+    <!-- Students Management Card -->
+    <div class="admin-card">
+      <div class="admin-header" style="flex-wrap: wrap; gap: 15px;">
+        <h2>👨‍🎓 Students Management <span id="academic-year-display" style="font-size: 16px; color: #64748b; font-weight: 500;"></span></h2>
+        <button class="btn-primary" onclick="promoteStudents()" title="Move all students up one grade level">🎓 Promote All Students</button>
+      </div>
+
+      <div class="controls-group">
+        <select id="student-class" onchange="loadStudents()">
+          <option value="">Select Class</option>
+          <option value="6">6th Standard</option>
+          <option value="7">7th Standard</option>
+          <option value="8">8th Standard</option>
+          <option value="9">9th Standard</option>
+          <option value="10">10th Standard</option>
+          <option value="11">11th Standard</option>
+          <option value="12">12th Standard</option>
+        </select>
+        <select id="student-section" onchange="loadStudents()">
+          <option value="">Select Section</option>
+          <option value="A">A</option>
+          <option value="A1">A1</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="D">D</option>
+          <option value="E">E</option>
+          <option value="F">F</option>
+        </select>
+      </div>
+
+      <div id="students-list" class="list-container">
+        <!-- Students will load here -->
+        <p style="color:#94a3b8; font-style:italic;">Select a class and section to view students.</p>
+      </div>
+
+      <div class="add-form" id="add-student-form" style="display:none;">
+        <input type="text" id="new-student-name" placeholder="Enter New Student Name" style="flex-grow: 1;">
+        <button class="btn-primary" onclick="addStudent()">Add Student</button>
+      </div>
+    </div>
+
+    <!-- Teachers Management Card -->
+    <div class="admin-card">
+      <div class="admin-header">
+        <h2>👩‍🏫 Teachers Management</h2>
+      </div>
+
+      <div class="controls-group">
+        <select id="teacher-class" onchange="loadTeachers()">
+          <option value="">Select Class</option>
+          <option value="6">6th Standard</option>
+          <option value="7">7th Standard</option>
+          <option value="8">8th Standard</option>
+          <option value="9">9th Standard</option>
+          <option value="10">10th Standard</option>
+          <option value="11">11th Standard</option>
+          <option value="12">12th Standard</option>
+        </select>
+        <select id="teacher-section" onchange="loadTeachers()">
+          <option value="">Select Section</option>
+          <option value="A">A</option>
+          <option value="A1">A1</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="D">D</option>
+          <option value="E">E</option>
+          <option value="F">F</option>
+        </select>
+      </div>
+
+      <div id="teachers-list" class="list-container">
+        <!-- Teachers will load here -->
+        <p style="color:#94a3b8; font-style:italic;">Select a class and section to view teachers.</p>
+      </div>
+
+      <div class="add-form" id="add-teacher-form" style="display:none; flex-wrap: wrap;">
+        <input type="text" id="new-teacher-subject" placeholder="Subject (e.g. TAMIL)">
+        <input type="text" id="new-teacher-name" placeholder="Teacher Name" style="flex-grow: 1;">
+        <button class="btn-primary" onclick="addTeacher()">Assign Teacher</button>
+      </div>
+    </div>
+
+    <!-- Alumni Directory Card -->
+    <div class="admin-card">
+      <div class="admin-header">
+        <h2>🎓 Alumni Directory</h2>
+      </div>
+
+      <div class="controls-group">
+        <select id="alumni-year" onchange="loadAlumni()">
+          <option value="">Select Passing Year</option>
+          <!-- Years loaded dynamically -->
+        </select>
+      </div>
+
+      <div id="alumni-list" style="display: block; width: 100%;">
+        <p style="color:#94a3b8; font-style:italic;">Select a passing year to view alumni.</p>
+      </div>
+    </div>
+    
+  </div>
+
+  <script src="studentsname.js"></script>
+  <script src="teachersname.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCeQ5M9dqhud_0WSD7P_Lry_jRTMY7ACws",
+      authDomain: "webpage-f7c87.firebaseapp.com",
+      projectId: "webpage-f7c87",
+      storageBucket: "webpage-f7c87.firebasestorage.app",
+      messagingSenderId: "270449608332",
+      appId: "1:270449608332:web:9da8a5339080801025dda9"
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    // Internal states
+    let currentStudents = [];
+    let currentTeachers = {};
+
+    function showNotification(msg) {
+      const notif = document.getElementById('notification');
+      notif.innerText = msg;
+      notif.classList.add('show');
+      setTimeout(() => notif.classList.remove('show'), 3000);
+    }
+
+    // --- STUDENTS MANAGEMENT ---
+    function loadStudents() {
+      const cls = document.getElementById('student-class').value;
+      const sec = document.getElementById('student-section').value;
+      const container = document.getElementById('students-list');
+      const addForm = document.getElementById('add-student-form');
+
+      if (!cls || !sec) {
+        container.innerHTML = '<p style="color:#94a3b8; font-style:italic;">Select a class and section to view students.</p>';
+        addForm.style.display = 'none';
+        return;
+      }
+
+      db.ref(`settings/students/${cls}/${sec}`).once('value', snapshot => {
+        let data = snapshot.val();
+        
+        // Fallback to JS file if DB is empty
+        if (!data && students[cls] && students[cls][sec]) {
+           data = students[cls][sec];
+           // Save to DB so we can edit it
+           db.ref(`settings/students/${cls}/${sec}`).set(data);
+        }
+
+        currentStudents = data || [];
+        renderStudents();
+        addForm.style.display = 'flex';
+      });
+    }
+
+    function renderStudents() {
+      const container = document.getElementById('students-list');
+      container.innerHTML = '';
+      if(currentStudents.length === 0) {
+        container.innerHTML = '<p style="color:#94a3b8;">No students found in this section.</p>';
+        return;
+      }
+
+      currentStudents.sort().forEach((student, index) => {
+        container.innerHTML += `
+          <div class="list-item">
+            <span>${student}</span>
+            <div style="display: flex; gap: 5px;">
+              <button class="btn-primary" style="padding: 6px 12px; font-size: 13px;" onclick="editStudent(${index})">Edit</button>
+              <button class="btn-danger" style="padding: 6px 12px; font-size: 13px;" onclick="removeStudent(${index})">Remove</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function editStudent(index) {
+      const newName = prompt("Edit Student Name:", currentStudents[index]);
+      if (newName !== null && newName.trim() !== "") {
+        currentStudents[index] = newName.trim().toUpperCase();
+        const cls = document.getElementById('student-class').value;
+        const sec = document.getElementById('student-section').value;
+        db.ref(\`settings/students/\${cls}/\${sec}\`).set(currentStudents).then(() => {
+          renderStudents();
+          showNotification("Student Updated!");
+        });
+      }
+    }
+
+    function addStudent() {
+      const nameInput = document.getElementById('new-student-name');
+      const name = nameInput.value.trim().toUpperCase();
+      const cls = document.getElementById('student-class').value;
+      const sec = document.getElementById('student-section').value;
+
+      if (!name) return alert("Enter a valid name.");
+
+      currentStudents.push(name);
+      db.ref(`settings/students/${cls}/${sec}`).set(currentStudents).then(() => {
+        nameInput.value = '';
+        renderStudents();
+        showNotification("Student Added!");
+      });
+    }
+
+    function removeStudent(index) {
+      if(!confirm("Are you sure you want to remove this student?")) return;
+      const cls = document.getElementById('student-class').value;
+      const sec = document.getElementById('student-section').value;
+
+      currentStudents.splice(index, 1);
+      db.ref(`settings/students/${cls}/${sec}`).set(currentStudents).then(() => {
+        renderStudents();
+        showNotification("Student Removed!");
+      });
+    }
+
+    function promoteStudents() {
+      const currentYear = prompt("Enter the CURRENT Academic Year of the 12th grade students before promoting (e.g. 2024-2025). They will be saved as Alumni under this year:");
+      if (!currentYear || currentYear.trim() === "") return alert("Promotion cancelled. Academic year is required to save alumni.");
+      
+      const nextYear = prompt("Enter the NEW Academic Year to set (e.g. 2025-2026):");
+      if (!nextYear || nextYear.trim() === "") return alert("Promotion cancelled. New Academic year is required.");
+
+      if(!confirm(\`WARNING: This will promote all students from 6->7, 7->8, etc., and move 12th graders to Alumni for \${currentYear}. Proceed?\`)) return;
+
+      db.ref(\`settings/students\`).once('value', snapshot => {
+        let data = snapshot.val();
+        if(!data) {
+           data = JSON.parse(JSON.stringify(students)); // Fallback
+        }
+
+        // Save 12th to Alumni
+        if (data[12]) {
+           db.ref(\`settings/alumni/\${currentYear.trim()}\`).set(data[12]);
+        }
+
+        const newData = {};
+        for(let c = 6; c <= 11; c++) {
+           if(data[c]) {
+             newData[c + 1] = data[c];
+           }
+        }
+        newData[6] = {}; // Empty class 6
+        
+        db.ref(\`settings/students\`).set(newData).then(() => {
+           db.ref(\`settings/academicYear\`).set(nextYear.trim());
+           showNotification(\`Students Promoted! Academic Year changed to \${nextYear}.\`);
+           loadStudents();
+           loadAcademicYear();
+        });
+      });
+    }
+
+
+    // --- TEACHERS MANAGEMENT ---
+    function loadTeachers() {
+      const cls = document.getElementById('teacher-class').value;
+      const sec = document.getElementById('teacher-section').value;
+      const container = document.getElementById('teachers-list');
+      const addForm = document.getElementById('add-teacher-form');
+
+      if (!cls || !sec) {
+        container.innerHTML = '<p style="color:#94a3b8; font-style:italic;">Select a class and section to view teachers.</p>';
+        addForm.style.display = 'none';
+        return;
+      }
+
+      db.ref(`settings/teacherNames/${cls}/${sec}`).once('value', snapshot => {
+        let data = snapshot.val();
+        
+        // Fallback to JS file if DB is empty
+        if (!data && teacherNames[cls] && teacherNames[cls][sec]) {
+           data = teacherNames[cls][sec];
+           db.ref(`settings/teacherNames/${cls}/${sec}`).set(data);
+        }
+
+        currentTeachers = data || {};
+        renderTeachers();
+        addForm.style.display = 'flex';
+      });
+    }
+
+    function renderTeachers() {
+      const container = document.getElementById('teachers-list');
+      container.innerHTML = '';
+      const subjects = Object.keys(currentTeachers);
+      
+      if(subjects.length === 0) {
+        container.innerHTML = '<p style="color:#94a3b8;">No teachers assigned in this section.</p>';
+        return;
+      }
+
+      subjects.forEach(subject => {
+        container.innerHTML += `
+          <div class="list-item" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+            <div style="width: 100%; display: flex; justify-content: space-between;">
+              <span style="color: #2563eb; font-weight: 700;">${subject}</span>
+              <button class="btn-danger" onclick="removeTeacher('${subject}')">Remove</button>
+            </div>
+            <span style="font-size: 14px;">👩‍🏫 ${currentTeachers[subject]}</span>
+          </div>
+        `;
+      });
+    }
+
+    function addTeacher() {
+      const subInput = document.getElementById('new-teacher-subject');
+      const nameInput = document.getElementById('new-teacher-name');
+      const subject = subInput.value.trim().toUpperCase();
+      const name = nameInput.value.trim().toUpperCase();
+      const cls = document.getElementById('teacher-class').value;
+      const sec = document.getElementById('teacher-section').value;
+
+      if (!subject || !name) return alert("Enter both Subject and Name.");
+
+      currentTeachers[subject] = name;
+      db.ref(`settings/teacherNames/${cls}/${sec}`).set(currentTeachers).then(() => {
+        subInput.value = '';
+        nameInput.value = '';
+        renderTeachers();
+        showNotification("Teacher Assigned!");
+      });
+    }
+
+    function removeTeacher(subject) {
+      if(!confirm(`Remove teacher for ${subject}?`)) return;
+      const cls = document.getElementById('teacher-class').value;
+      const sec = document.getElementById('teacher-section').value;
+
+      delete currentTeachers[subject];
+      db.ref(`settings/teacherNames/${cls}/${sec}`).set(currentTeachers).then(() => {
+        renderTeachers();
+        showNotification("Teacher Removed!");
+      });
+    }
+
+    function toggleMenu() {
+      const menu = document.querySelector('.menu-links');
+      menu.classList.toggle('show');
+    }
+
+    function loadAcademicYear() {
+      db.ref('settings/academicYear').once('value', snapshot => {
+         const year = snapshot.val();
+         const display = document.getElementById('academic-year-display');
+         if (display) {
+             display.textContent = year ? `(Academic Year: ${year})` : '';
+         }
+      });
+    }
+
+    function loadAlumniYears() {
+      db.ref('settings/alumni').once('value', snapshot => {
+        const data = snapshot.val();
+        const select = document.getElementById('alumni-year');
+        if(data) {
+          Object.keys(data).forEach(year => {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            select.appendChild(option);
+          });
+        }
+      });
+    }
+
+    function loadAlumni() {
+      const year = document.getElementById('alumni-year').value;
+      const container = document.getElementById('alumni-list');
+      
+      if (!year) {
+        container.innerHTML = '<p style="color:#94a3b8; font-style:italic;">Select a passing year to view alumni.</p>';
+        return;
+      }
+
+      db.ref(`settings/alumni/${year}`).once('value', snapshot => {
+        const sections = snapshot.val();
+        container.innerHTML = '';
+        if(!sections) {
+          container.innerHTML = '<p style="color:#94a3b8;">No alumni found for this year.</p>';
+          return;
+        }
+
+        let html = '';
+        for (const [sec, studentsList] of Object.entries(sections)) {
+           html += `<h3 style="margin-top: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; color:#1e293b;">Section ${sec}</h3>`;
+           html += `<div class="list-container">`;
+           studentsList.forEach(student => {
+              html += `<div class="list-item"><span>${student}</span> <span style="font-size:12px; color:#64748b; background:#e2e8f0; padding:2px 8px; border-radius:10px;">Alumni ${year}</span></div>`;
+           });
+           html += `</div>`;
+        }
+        container.innerHTML = html;
+      });
+    }
+
+    // Call it on load
+    loadAcademicYear();
+    loadAlumniYears();
+  </script>
+</body>
+</html>

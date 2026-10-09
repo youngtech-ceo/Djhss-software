@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Top Performers</title>
+  <style>
+    body {
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      background-color: #f4f7fb;
+      margin: 0;
+      padding: 0;
+      color: #334155;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: linear-gradient(135deg, #0b1a2d, #1a365d);
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    .navbar h2 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #fff;
+    }
+
+    .nav-buttons-container {
+      margin: 20px;
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .nav-buttons-container button,
+    button {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .nav-buttons-container button:hover,
+    button:hover {
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+    }
+
+    .controls {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      border: 1px solid rgba(0,0,0,0.02);
+      max-width: 900px;
+      margin: 0 auto 40px auto;
+      text-align: center;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      align-items: center;
+    }
+
+    select, input[type="number"] {
+      padding: 12px 16px;
+      font-size: 15px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: #334155;
+      outline: none;
+      transition: all 0.3s ease;
+      min-width: 160px;
+    }
+
+    select:focus, input[type="number"]:focus {
+      border-color: #3b82f6;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    h3 {
+      text-align: center;
+      color: #1e293b;
+      font-size: 24px;
+      font-weight: 700;
+      margin-top: 40px;
+      margin-bottom: 20px;
+    }
+
+    #overall-top {
+      margin: 0 auto 40px auto;
+      max-width: 900px;
+      width: 95%;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 12px;
+      overflow: hidden;
+      font-size: 15px;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+    }
+
+    th, td {
+      padding: 15px 20px;
+      text-align: center;
+      border-bottom: 1px solid #e2e8f0;
+      border-right: 1px solid #e2e8f0;
+    }
+
+    th:last-child, td:last-child {
+      border-right: none;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #1e293b;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+    }
+
+    tr:nth-child(even) { background-color: #fbfcfd; }
+    tr:hover { background-color: #f1f5f9; }
+
+    #result {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 25px;
+      margin: 0 auto 40px auto;
+      max-width: 1200px;
+      width: 95%;
+    }
+
+    .subject-card {
+      background: white;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      border: 1px solid rgba(0,0,0,0.02);
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    .subject-card h3 {
+      margin-top: 0;
+      font-size: 20px;
+    }
+
+    #overall-scroll {
+      max-height: 500px;
+      overflow-y: auto;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      border: 1px solid rgba(0,0,0,0.02);
+      background: #ffffff;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Footer */
+    footer {
+      background: #0f172a;
+      color: #94a3b8;
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+<div class="navbar">
+  <h2>Top Performers by Subject & Total</h2>
+</div>
+
+<div class="nav-buttons-container">
+  <button onclick="goToReports()">← Back to All Reports</button>
+  <button onclick="goToHome()">🏠 Home</button>
+</div>
+
+<script>
+  function goToReports() {
+      window.location.href = "all report.html";
+  }
+  
+  function goToHome() {
+      window.location.href = "index.html";
+  }
+  </script>
+  
+
+<script>
+
+
+function toggleMenu() {
+  const menuLinks = document.querySelector('.menu-links');
+  menuLinks.classList.toggle('show');
+}
+
+</script>
+
+<div class="controls">
+  <select id="class-select">
+    <option value="">Select Class</option>
+    <option value="6">6th Standard</option>
+    <option value="7">7th Standard</option>
+    <option value="8">8th Standard</option>
+    <option value="9">9th Standard</option>
+    <option value="10">10th Standard</option>
+    <option value="11">11th Standard</option>
+    <option value="12">12th Standard</option>
+  </select>
+
+  <select id="exam-select">
+    <option >Select</option>
+      <option value="1st-Midterm">1st-Midterm</option>
+      <option value="QUATERLY">QUATERLY</option>
+      <option value="2nd Midterm">2nd Midterm</option>
+      <option value="HALFYEARLY">HALFYEARLY</option>
+      <option value="REVISION-1">REVISION-1</option>
+      <option value="REVISION-2">REVISION-2</option>
+      <option value="REVISION-3">REVISION-3</option>
+      <option value="ANNUAL EXAM">ANNUAL EXAM</option>
+  </select>
+
+  <label>Show Top Total:</label>
+  <input type="number" id="top-count" value="3" min="1" max="50" style="width: 70px;" />
+  <button id="analyze-button">Analyze</button>
+</div>
+
+<div id="overall-top"></div>
+<div id="result"></div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+ const firebaseConfig = {
+        apiKey: "AIzaSyCeQ5M9dqhud_0WSD7P_Lry_jRTMY7ACws",
+        authDomain: "webpage-f7c87.firebaseapp.com",
+        databaseURL: "https://webpage-f7c87-default-rtdb.firebaseio.com",
+        projectId: "webpage-f7c87",
+        storageBucket: "webpage-f7c87.firebasestorage.app",
+        messagingSenderId: "270449608332",
+        appId: "1:270449608332:web:9da8a5339080801025dda9",
+        measurementId: "G-7N6TQNJN5H"
+    };
+
+
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+
+  function getSubjects(classNum, section) {
+    if (classNum <= 10) {
+      return ["TAMIL", "ENGLISH", "MATHS", "SCIENCE", "SOCIAL SCIENCE"];
+    } else {
+      switch (section) {
+        case 'A': case 'C': return ["TAMIL", "ENGLISH", "MATHS", "PHYSICS", "CHEMISTRY", "BIOLOGY"];
+        case 'A1': case 'B': return ["TAMIL", "ENGLISH", "MATHS", "PHYSICS", "CHEMISTRY", "COMPUTER_SCIENCE"];
+        case 'D': return ["TAMIL", "ENGLISH", "HISTORY", "ECONOMICS", "COMMERCE", "ACCOUNTS"];
+        case 'E': return ["TAMIL", "ENGLISH", "ECONOMICS", "COMMERCE", "ACCOUNTS", "COMPUTER_APPLICATION"];
+        case 'F': return ["TAMIL", "ENGLISH", "BIOLOGY", "AGRI", "AGRI_PRACTICLE", "EMPS"];
+        default: return [];
+      }
+    }
+  }
+
+  function assignRanks(dataList, key) {
+    const sorted = dataList.sort((a, b) => b[key] - a[key]);
+    let currentRank = 1;
+    return sorted.map((item, i, arr) => {
+      if (i > 0 && arr[i][key] === arr[i - 1][key]) {
+        item.rank = arr[i - 1].rank;
+      } else {
+        item.rank = currentRank;
+      }
+      currentRank = item.rank + 1;
+      return item;
+    });
+  }
+
+  document.getElementById("analyze-button").addEventListener("click", () => {
+    const classNum = parseInt(document.getElementById("class-select").value);
+    const examType = document.getElementById("exam-select").value;
+    const topCount = parseInt(document.getElementById("top-count").value);
+
+    const resultDiv = document.getElementById("result");
+    const overallDiv = document.getElementById("overall-top");
+    resultDiv.innerHTML = "Loading...";
+    overallDiv.innerHTML = "";
+
+    database.ref(`students/${classNum}`).once("value").then(snapshot => {
+      const allData = snapshot.val();
+      const subjectMap = {};
+      const overallMarks = [];
+
+      Object.entries(allData).forEach(([section, sectionData]) => {
+        const examData = sectionData[examType];
+        if (!examData) return;
+        const subjects = getSubjects(classNum, section);
+
+        examData.forEach(student => {
+          let total = 0;
+          student.marks.forEach((mark, i) => {
+            if (mark === "absent") return;
+            const sub = subjects[i];
+            const score = parseInt(mark) || 0;
+            total += score;
+
+            if (!subjectMap[sub]) subjectMap[sub] = [];
+            subjectMap[sub].push({
+              name: `${student.name} (${classNum}-${section})`,
+              score
+            });
+          });
+
+          overallMarks.push({
+            name: `${student.name} (${classNum}-${section})`,
+            total
+          });
+        });
+      });
+
+      // Subject-wise Top 3
+      let subjectHTML = '';
+      for (const [subject, entries] of Object.entries(subjectMap)) {
+        const ranked = assignRanks(entries, "score").filter(s => s.rank <= 3);
+        subjectHTML += `
+          <div class="subject-card">
+            <h3>${subject}</h3>
+            <table>
+              <tr><th>Rank</th><th>Name</th><th>Mark</th></tr>
+              ${ranked.map(s => `<tr><td>${s.rank}</td><td>${s.name}</td><td>${s.score}</td></tr>`).join("")}
+            </table>
+          </div>
+        `;
+      }
+
+      resultDiv.innerHTML = subjectHTML;
+
+      // Overall Top N with tie handling
+      const rankedOverall = assignRanks(overallMarks, "total").filter(s => s.rank <= topCount);
+      overallDiv.innerHTML = `
+        <h3>🏆 Overall Top ${topCount} Students</h3>
+        <div id="overall-scroll">
+          <table>
+            <tr><th>Rank</th><th>Name</th><th>Total</th></tr>
+            ${rankedOverall.map(s => `<tr><td>${s.rank}</td><td>${s.name}</td><td>${s.total}</td></tr>`).join("")}
+          </table>
+        </div>
+      `;
+    }).catch(err => {
+      resultDiv.innerHTML = `<p>Error loading data: ${err.message}</p>`;
+    });
+  });
+</script>
+
+  <footer>&copy; 2025 YOUNG TECHNOLOGY | All rights reserved</footer>
+
+</body>
+</html>
+
